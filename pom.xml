@@ -111,9 +111,14 @@
         <dependency>
             <groupId>net.kieker-monitoring</groupId>
             <artifactId>kieker</artifactId>
-            <version>1.13</version>
+            <version>1.14-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <!-- end::dependencies[] -->
-
+    <repositories>
+        <repository>
+            <id>sonatype.oss.snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
 </project>
