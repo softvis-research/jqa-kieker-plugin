@@ -1,4 +1,4 @@
-package my.project.plugin.scanner;
+package org.jqassistant.contrib.plugin.kieker.test;
 
 import com.buschmais.jqassistant.core.scanner.api.DefaultScope;
 import com.buschmais.jqassistant.plugin.common.test.AbstractPluginIT;

@@ -1,4 +1,4 @@
-package my.project.plugin.scanner;
+package org.jqassistant.contrib.plugin.kieker.impl.scanner;
 
 import com.buschmais.jqassistant.core.scanner.api.Scanner;
 import com.buschmais.jqassistant.core.scanner.api.ScannerContext;
@@ -9,14 +9,17 @@ import com.buschmais.jqassistant.plugin.common.api.model.FileDescriptor;
 import com.buschmais.jqassistant.plugin.common.api.scanner.AbstractScannerPlugin;
 import com.buschmais.jqassistant.plugin.common.api.scanner.filesystem.FileResource;
 import kieker.analysisteetime.plugin.reader.filesystem.fsReader.FSDirectoryReader;
-import my.project.plugin.scanner.model.RecordDescriptor;
+import org.jqassistant.contrib.plugin.kieker.api.model.RecordDescriptor;
 
 import java.io.File;
 import java.io.IOException;
 
 
 /**
- * A Kieker file scanner plugin.
+ * The Kieker file scanner plugin reads Kieker trace logs (*.map and *.dat files) from a directory and stores them
+ * in a Neo4j graph database.
+ *
+ * @author Richard Mueller, Matteo Fischer
  */
 @Requires(FileDescriptor.class) // The file descriptor is created by the file scanner plugin and enriched by
 // this one
