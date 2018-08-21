@@ -6,7 +6,9 @@ import com.buschmais.xo.neo4j.api.annotation.Relation;
 import java.util.List;
 
 /**
- * TODO
+ * Defines the label for a type.
+ * A type declares a method.
+ * It stores its signature.
  */
 @Label("Type")
 public interface TypeDescriptor extends KiekerDescriptor {

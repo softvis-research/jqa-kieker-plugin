@@ -7,14 +7,37 @@ import com.buschmais.xo.neo4j.api.annotation.Relation;
 import java.util.List;
 
 /**
- * TODO
+ * Defines the label for a Record stored in a kieker file.
+ * A Record contains traces.
+ * It stores those properties: version, controllerName, hostname, experimentId, debugMode(Yes or No), timeOffset and numberOfRecords
  */
 @Label("Record")
 public interface RecordDescriptor extends KiekerDescriptor, FileDescriptor {
-
-    //TODO implement properties
-
-    @Relation("CONTAINS")
+    
+	@Relation("CONTAINS")
     List<TraceDescriptor> getTraces();
-
+    
+	void setVersion(String version);
+    String getVersion();
+    
+    void setControllerName(String controllerName);
+    String getControllerName();
+    
+    void setHostname(String hostname);
+    String getHostname();
+    
+    void setExperimentId(int experimentId);
+    int getExperimentId();
+    
+    void setDebugMode(boolean debugMode);
+    boolean getDebugMode();
+    
+    void setTimeOffset(long timeOffset);
+    long getTimeOffset();
+    
+    void setTimeUnit(String timeUnit);
+    String getTimeUnit();
+    
+    void setNumberOfRecords(long numberOfRecords);
+    long getNumberOfRecords();
 }

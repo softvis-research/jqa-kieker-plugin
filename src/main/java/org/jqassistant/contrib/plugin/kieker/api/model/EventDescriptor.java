@@ -6,14 +6,22 @@ import com.buschmais.xo.neo4j.api.annotation.Relation;
 import java.util.List;
 
 /**
- * TODO
+ * Defines the label for an event, that took place in a trace.
+ * Contains the properties: timestamp, traceId and orderIndex.
+ * An event can call a method.
  */
 @Label("Event")
 public interface EventDescriptor extends KiekerDescriptor {
-
-    //TODO implement properties (TraceMetadata)
-
+	
     @Relation("CALLS")
     List<MethodDescriptor> getMethods();
 
+    void setTimestamp(long timestamp);
+    long getTimestamp();
+    
+    void setTraceId(long traceId);
+    long getTraceId();
+    
+    void setOrderIndex(int orderIndex);
+    int getOrderIndex();
 }

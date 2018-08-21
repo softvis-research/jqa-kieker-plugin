@@ -4,6 +4,8 @@ import com.buschmais.jqassistant.core.store.api.Store;
 import kieker.analysis.plugin.reader.util.IMonitoringRecordReceiver;
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.flow.trace.TraceMetadata;
+import kieker.common.record.misc.KiekerMetadataRecord;
+
 import org.jqassistant.contrib.plugin.kieker.api.model.RecordDescriptor;
 import org.jqassistant.contrib.plugin.kieker.api.model.TraceDescriptor;
 

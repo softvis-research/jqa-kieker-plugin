@@ -6,18 +6,31 @@ import com.buschmais.xo.neo4j.api.annotation.Relation;
 import java.util.List;
 
 /**
- * TODO
+ * Defines the label for a Trace of a record.
+ * A Trace contains Events.
+ * It stores those properties: traceId, threadId, sessionId, hostname, parentTraceId and parentOrderId
  */
 @Label("Trace")
 public interface TraceDescriptor extends KiekerDescriptor {
-
-    //TODO implement properties (TraceMetadata)
 
     @Relation("CONTAINS")
     List<EventDescriptor> getEvents();
 
     void setTraceId(long traceId);
-
     long getTraceId();
+    
+    void setThreadId(long threadId);
+    long getThreadId();
 
+    void setSessionId(String sessionId);
+    String getSessionId();
+    
+    void setHostname(String hostname);
+    String getHostname();
+    
+    void setParentTraceId(long parentTraceId);
+    long getParentTraceId();
+    
+    void setParentOrderId(int parentOrderId);
+    int getParentOrderIf();
 }
