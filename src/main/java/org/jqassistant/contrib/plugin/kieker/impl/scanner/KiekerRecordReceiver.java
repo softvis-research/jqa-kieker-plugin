@@ -25,6 +25,8 @@ public class KiekerRecordReceiver implements IMonitoringRecordReceiver {
     public boolean newMonitoringRecord(IMonitoringRecord iMonitoringRecord) {
         if (iMonitoringRecord instanceof TraceMetadata) {
             addTrace((TraceMetadata) iMonitoringRecord);
+        }else if(iMonitoringRecord instanceof KiekerMetadataRecord) {
+        	
         }
         // TODO handle KiekerMetadataRecord, BeforeOperationEvent, AfterOperationEvent, [OperationExecutionEvent]
         return true;
