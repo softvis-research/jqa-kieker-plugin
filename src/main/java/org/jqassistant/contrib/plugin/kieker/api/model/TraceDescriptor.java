@@ -16,6 +16,9 @@ public interface TraceDescriptor extends KiekerDescriptor {
     @Relation("CONTAINS")
     List<EventDescriptor> getEvents();
 
+    void setLoggingTimestamp(long timestamp);
+    long getLoggingTimestamp();
+    
     void setTraceId(long traceId);
     long getTraceId();
     

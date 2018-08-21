@@ -14,7 +14,6 @@ import java.util.List;
 public interface TypeDescriptor extends KiekerDescriptor {
 
     void setSignature(String signature);
-
     String getSignature();
 
     @Relation("DECLARES")

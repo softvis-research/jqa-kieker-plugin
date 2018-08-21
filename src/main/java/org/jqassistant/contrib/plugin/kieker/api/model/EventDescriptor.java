@@ -16,6 +16,9 @@ public interface EventDescriptor extends KiekerDescriptor {
     @Relation("CALLS")
     List<MethodDescriptor> getMethods();
 
+    void setLoggingTimestamp(long timestamp);
+    long getLoggingTimestamp();
+    
     void setTimestamp(long timestamp);
     long getTimestamp();
     
