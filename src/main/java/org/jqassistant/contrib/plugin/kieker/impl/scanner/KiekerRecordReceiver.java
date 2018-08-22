@@ -8,6 +8,9 @@ import kieker.common.record.flow.trace.operation.AfterOperationEvent;
 import kieker.common.record.flow.trace.operation.BeforeOperationEvent;
 import kieker.common.record.misc.KiekerMetadataRecord;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jqassistant.contrib.plugin.kieker.api.model.AfterOperationEventDescriptor;
 import org.jqassistant.contrib.plugin.kieker.api.model.BeforeOperationEventDescriptor;
 import org.jqassistant.contrib.plugin.kieker.api.model.MethodDescriptor;
@@ -23,6 +26,7 @@ import org.jqassistant.contrib.plugin.kieker.api.model.TypeDescriptor;
 public class KiekerRecordReceiver implements IMonitoringRecordReceiver {
     private RecordDescriptor recordDescriptor;
     private Store store;
+    private Map<Long, TraceDescriptor> traces = new HashMap<>();
 
     public KiekerRecordReceiver(RecordDescriptor recordDescriptor, Store store) {
         this.recordDescriptor = recordDescriptor;
@@ -32,6 +36,9 @@ public class KiekerRecordReceiver implements IMonitoringRecordReceiver {
     /*
      * Adds a new Trace, Before-/AfterOperationEvent or Metadata to the recordDescriptor.
      * @see kieker.analysis.plugin.reader.util.IMonitoringRecordReceiver#newMonitoringRecord(kieker.common.record.IMonitoringRecord)
+     * @param iMonitoringRecord
+     * 			Abstract MonitoringRecord from the kieker file.
+     * @return Always true.
      */
     @Override
     public boolean newMonitoringRecord(IMonitoringRecord iMonitoringRecord) {
@@ -48,12 +55,22 @@ public class KiekerRecordReceiver implements IMonitoringRecordReceiver {
         return true;
     }
 
+    /*
+     * (non-Javadoc)
+     * If the reader reaches the last Record, all traces are added to the RecordDescriptor.
+     * @see kieker.analysis.plugin.reader.util.IMonitoringRecordReceiver#newEndOfFileRecord()
+     */
     @Override
     public void newEndOfFileRecord() {
+    	for (Long key : traces.keySet()) {
+    	    recordDescriptor.getTraces().add(traces.get(key));
+    	}
     }
     
-    /*
+    /**
      * Adds the Metadata Information to the recordDescriptor.
+     * @param record
+     * 			A KiekerMetadataRecord of the kieker file.
      */
     private void addMetadata(KiekerMetadataRecord record) {
     	recordDescriptor.setVersion(record.getVersion());
@@ -66,9 +83,11 @@ public class KiekerRecordReceiver implements IMonitoringRecordReceiver {
     	recordDescriptor.setNumberOfRecords(record.getNumberOfRecords());
     }
     
-    /*
+    /**
      * Adds a TraceDescriptor to the RecordDescriptor.
      * Reads the TraceMetadata properties from the trace and stores them in the TraceDescriptor.
+     * @param trace
+     * 			A TraceMetadata record of the kieker file.
      */
     private void addTrace(TraceMetadata trace) {
         TraceDescriptor traceDescriptor = store.create(TraceDescriptor.class);
@@ -81,12 +100,13 @@ public class KiekerRecordReceiver implements IMonitoringRecordReceiver {
         traceDescriptor.setParentTraceId(trace.getParentTraceId());
         traceDescriptor.setParentOrderId(trace.getParentOrderId());
         
-        recordDescriptor.getTraces().add(traceDescriptor);
+        traces.put(trace.getTraceId(), traceDescriptor);
     }
     
-    /*
-     * Adds a BeforeOperationEvent with MethodDescriptor to the last Trace of the recordDescriptor.
-     * Reads the the Properties of the BeforeOperationEvent and stores them in the BeforeOperationEventDescriptor
+    /**Adds a BeforeOperationEvent with MethodDescriptor to its trace.
+     * Reads the Properties of the BeforeOperationEvent and stores them in the BeforeOperationEventDescriptor
+     * @param event
+     * 			A BeforeOperationEvent of the Trace. 
      */
     private void addBeforeOperationEvent(BeforeOperationEvent event) {
     	BeforeOperationEventDescriptor eventDescriptor = store.create(BeforeOperationEventDescriptor.class);
@@ -106,17 +126,14 @@ public class KiekerRecordReceiver implements IMonitoringRecordReceiver {
     	typeDescriptor.setSignature(event.getClassSignature());
     	typeDescriptor.getMethods().add(methodDescriptor);
     	
-    	
-    	//Add the event to the last trace of the event
-    	TraceDescriptor trace = recordDescriptor.getTraces().get(recordDescriptor.getTraces().size()-1);
-    	trace.getEvents().add(eventDescriptor);
-    	
-    	//TODO override last trace in recordDescriptor with the new trace(which stores the event)
+    	//Add the event to its trace.
+    	traces.get(event.getTraceId()).getEvents().add(eventDescriptor);
     }
     
-    /*
-     * Adds a AfterOperationEvent with MethodDescriptor to the last Trace of the recordDescriptor.
-     * Reads the the Properties of the AfterOperationEvent and stores them in the AfterOperationEventDescriptor.
+    /**Adds an AfterOperationEvent with MethodDescriptor to its trace.
+     * Reads the Properties of the AfterOperationEvent and stores them in the AfterOperationEventDescriptor.
+     * @param event
+     * 			An AfterOperationEvent of the Trace.
      */
     private void addAfterOperationEvent(AfterOperationEvent event) {
     	AfterOperationEventDescriptor eventDescriptor = store.create(AfterOperationEventDescriptor.class);
@@ -136,12 +153,8 @@ public class KiekerRecordReceiver implements IMonitoringRecordReceiver {
     	typeDescriptor.setSignature(event.getClassSignature());
     	typeDescriptor.getMethods().add(methodDescriptor);
     	
-    	
-    	//Add the event to the last trace of the event
-    	TraceDescriptor trace = recordDescriptor.getTraces().get(recordDescriptor.getTraces().size()-1);
-    	trace.getEvents().add(eventDescriptor);
-    	
-    	//TODO override last trace in recordDescriptor with the new trace(which stores the event)
+    	//Add the event to its trace.
+    	traces.get(event.getTraceId()).getEvents().add(eventDescriptor);
     }
     
 }

@@ -10,6 +10,8 @@ import com.buschmais.jqassistant.plugin.common.api.scanner.AbstractScannerPlugin
 import com.buschmais.jqassistant.plugin.common.api.scanner.filesystem.FileResource;
 import kieker.analysisteetime.plugin.reader.filesystem.fsReader.FSDirectoryReader;
 import org.jqassistant.contrib.plugin.kieker.api.model.RecordDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,19 +26,35 @@ import java.io.IOException;
 @Requires(FileDescriptor.class) // The file descriptor is created by the file scanner plugin and enriched by
 // this one
 public class KiekerFileScannerPlugin extends AbstractScannerPlugin<FileResource, RecordDescriptor> {
+	private static final Logger LOGGER = LoggerFactory.getLogger(KiekerFileScannerPlugin.class);
+	private final String JQASSISTANT_PLUGIN_KIEKER_TRACELOG_DIRNAME = "jqassistant.contrib.plugin.kieker.src.test.resource";
+    private String traceDirName = "resources";
 
+	/* (non-Javadoc)
+     * @see com.buschmais.jqassistant.core.scanner.api.ScannerPlugin#accepts(java.lang.Object, java.lang.String, com.buschmais.jqassistant.core.scanner.api.Scope)
+     */
     @Override
-    //File is a .dat, but file is structured as a CSV file
     public boolean accepts(FileResource item, String path, Scope scope) {
         return path.toLowerCase().endsWith(".dat");
     }
 
+    /* (non-Javadoc)
+     * Sets the directory for the kieker files to scan.
+     * @see com.buschmais.jqassistant.plugin.common.api.scanner.AbstractScannerPlugin#configure()
+     */
     @Override
     protected void configure() {
-        // TODO implement property for directory (JQASSISTANT_PLUGIN_KIEKER_TRACELOG_DIRNAME)
         super.configure();
+        if (getProperties().containsKey(JQASSISTANT_PLUGIN_KIEKER_TRACELOG_DIRNAME)) {
+        	traceDirName = (String) getProperties().get(JQASSISTANT_PLUGIN_KIEKER_TRACELOG_DIRNAME);
+        }
+
+        LOGGER.info("Kieker plugin looks for .map and .dat files in directory '{}'", traceDirName);
     }
 
+    /* (non-Javadoc)
+     * @see com.buschmais.jqassistant.core.scanner.api.ScannerPlugin#scan(java.lang.Object, java.lang.String, com.buschmais.jqassistant.core.scanner.api.Scope, com.buschmais.jqassistant.core.scanner.api.Scanner)
+     */
     @Override
     public RecordDescriptor scan(FileResource item, String path, Scope scope, Scanner scanner) throws IOException {
         // Get context, store, and record descriptor from scanner
@@ -49,8 +67,7 @@ public class KiekerFileScannerPlugin extends AbstractScannerPlugin<FileResource,
         KiekerRecordReceiver kiekerRecordReceiver = new KiekerRecordReceiver(recordDescriptor, store);
 
         // Set filesystem directory reader (reads *.map and *.dat files in a directory)
-        // TODO use property JQASSISTANT_PLUGIN_KIEKER_TRACELOG_DIRNAME
-        FSDirectoryReader fsDirectoryReader = new FSDirectoryReader(new File("src/test/resources"), kiekerRecordReceiver, true);
+        FSDirectoryReader fsDirectoryReader = new FSDirectoryReader(new File(traceDirName), kiekerRecordReceiver, true);
         fsDirectoryReader.run();
 
         return recordDescriptor;
