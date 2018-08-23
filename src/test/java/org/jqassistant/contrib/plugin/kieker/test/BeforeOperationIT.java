@@ -10,17 +10,19 @@ import org.junit.Test;
 import com.buschmais.jqassistant.core.scanner.api.DefaultScope;
 import com.buschmais.jqassistant.plugin.common.test.AbstractPluginIT;
 
-public class RecordIT extends AbstractPluginIT {
+public class BeforeOperationIT extends AbstractPluginIT {
 
 	@Test
-	public void testRecord() {
+	public void testBeforeOperation() {
 		final String TEST_DIRECTORY_PATH = "src/test/resources/";
 		File directory = new File(TEST_DIRECTORY_PATH);
 		store.beginTransaction();
 		getScanner().scan(directory, TEST_DIRECTORY_PATH, DefaultScope.NONE);
-		TestResult testResult = query("MATCH (:Record)-[:CONTAINS]->(t:Trace) RETURN t");
-		// one record with two traces
-		assertThat(testResult.getColumn("t").size(), equalTo(2));
+
+		TestResult testResultBeforeOperation = query("MATCH (:BeforeOperation)-[:CALLS]->(m:Method) RETURN m");
+		// Every BeforeOperationEvent calls one method. So 5 BeforeOperationEvents call
+		// 5 methods.
+		assertThat(testResultBeforeOperation.getColumn("m").size(), equalTo(5));
 		store.commitTransaction();
 	}
 }
