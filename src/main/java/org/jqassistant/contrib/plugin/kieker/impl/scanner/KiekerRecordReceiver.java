@@ -62,19 +62,11 @@ public class KiekerRecordReceiver implements IMonitoringRecordReceiver {
 	}
 
 	/*
-	 * (non-Javadoc) If the reader reaches the last Record, all traces are added to
-	 * the RecordDescriptor.
-	 * 
 	 * @see kieker.analysis.plugin.reader.util.IMonitoringRecordReceiver#
 	 * newEndOfFileRecord()
 	 */
 	@Override
 	public void newEndOfFileRecord() {
-		// System.out.print(recordDescriptor.getTraces().size());
-		// System.out.print(traces.size());
-		for (Long key : traces.keySet()) {
-			recordDescriptor.getTraces().add(traces.get(key));
-		}
 	}
 
 	/**
@@ -109,7 +101,7 @@ public class KiekerRecordReceiver implements IMonitoringRecordReceiver {
 		traceDescriptor.setHostname(trace.getHostname());
 		traceDescriptor.setParentTraceId(trace.getParentTraceId());
 		traceDescriptor.setParentOrderId(trace.getParentOrderId());
-
+		recordDescriptor.getTraces().add(traceDescriptor);
 		traces.put(trace.getTraceId(), traceDescriptor);
 	}
 
