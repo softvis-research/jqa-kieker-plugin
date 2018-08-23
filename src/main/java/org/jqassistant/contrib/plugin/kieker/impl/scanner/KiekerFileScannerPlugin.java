@@ -27,8 +27,8 @@ import java.io.IOException;
 // this one
 public class KiekerFileScannerPlugin extends AbstractScannerPlugin<FileResource, RecordDescriptor> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(KiekerFileScannerPlugin.class);
-	private final String JQASSISTANT_PLUGIN_KIEKER_TRACELOG_DIRNAME = "jqassistant.contrib.plugin.kieker.src.test.resource";
-    private String traceDirName = "resources";
+	private final String JQASSISTANT_PLUGIN_KIEKER_TRACELOG_DIRNAME = "jqassistant.plugin.kieker.tracelog.dirname";
+	private String traceDirName = "src/test/resources";
 
 	/* (non-Javadoc)
      * @see com.buschmais.jqassistant.core.scanner.api.ScannerPlugin#accepts(java.lang.Object, java.lang.String, com.buschmais.jqassistant.core.scanner.api.Scope)
