@@ -140,7 +140,6 @@ public class KiekerRecordReceiver implements IMonitoringRecordReceiver {
 
 		// Add the event to its trace.
 		traces.get(event.getTraceId()).getEvents().add(eventDescriptor);
-		recordDescriptor.getTraces()getClass().
 	}
 
 	/**
