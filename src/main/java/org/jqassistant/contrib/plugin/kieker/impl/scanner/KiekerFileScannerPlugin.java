@@ -31,6 +31,7 @@ public class KiekerFileScannerPlugin extends AbstractScannerPlugin<FileResource,
 	private String traceDirName = "src/test/resources";
 
 	/* (non-Javadoc)
+	 * Checks if the kieker file is a .dat or not.
      * @see com.buschmais.jqassistant.core.scanner.api.ScannerPlugin#accepts(java.lang.Object, java.lang.String, com.buschmais.jqassistant.core.scanner.api.Scope)
      */
     @Override

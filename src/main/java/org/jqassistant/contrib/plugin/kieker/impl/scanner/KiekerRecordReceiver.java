@@ -70,8 +70,8 @@ public class KiekerRecordReceiver implements IMonitoringRecordReceiver {
 	 */
 	@Override
 	public void newEndOfFileRecord() {
-		System.out.print(recordDescriptor.getTraces().size());
-		System.out.print(traces.size());
+		// System.out.print(recordDescriptor.getTraces().size());
+		// System.out.print(traces.size());
 		for (Long key : traces.keySet()) {
 			recordDescriptor.getTraces().add(traces.get(key));
 		}
@@ -139,7 +139,17 @@ public class KiekerRecordReceiver implements IMonitoringRecordReceiver {
 		typeDescriptor.getMethods().add(methodDescriptor);
 
 		// Add the event to its trace.
-		traces.get(event.getTraceId()).getEvents().add(eventDescriptor);
+		Long traceId = event.getTraceId();
+		if (traces.containsKey(traceId)) {
+			// Trace already exists.
+			traces.get(traceId).getEvents().add(eventDescriptor);
+		} else {
+			// Trace doesn't already exists -> add new Trace.
+			TraceDescriptor trace = store.create(TraceDescriptor.class);
+			trace.setTraceId(traceId);
+			trace.getEvents().add(eventDescriptor);
+			traces.put(traceId, trace);
+		}
 	}
 
 	/**
@@ -168,7 +178,17 @@ public class KiekerRecordReceiver implements IMonitoringRecordReceiver {
 		typeDescriptor.getMethods().add(methodDescriptor);
 
 		// Add the event to its trace.
-		traces.get(event.getTraceId()).getEvents().add(eventDescriptor);
+		Long traceId = event.getTraceId();
+		if (traces.containsKey(traceId)) {
+			// Trace already exists.
+			traces.get(traceId).getEvents().add(eventDescriptor);
+		} else {
+			// Trace doesn't already exists -> add new Trace.
+			TraceDescriptor trace = store.create(TraceDescriptor.class);
+			trace.setTraceId(traceId);
+			trace.getEvents().add(eventDescriptor);
+			traces.put(traceId, trace);
+		}
 	}
 
 }
