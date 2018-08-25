@@ -23,6 +23,19 @@ public class BeforeOperationIT extends AbstractPluginIT {
 		// Every BeforeOperationEvent calls one method. So 5 BeforeOperationEvents call
 		// 5 methods.
 		assertThat(testResultBeforeOperation.getColumn("m").size(), equalTo(5));
+
+		// test property values a BeforeOperationEvent
+		TestResult testResultProperties = query(
+				"MATCH (n:BeforeOperation) Where n.traceId=3881283897249497088 and n.orderIndex=0 RETURN n.traceId, n.orderIndex, n.loggingTimestamp, n.timestamp");
+		// traceId is "3881283897249497088"
+		assertThat(testResultProperties.getColumn("n.traceId").get(0).toString(), equalTo("3881283897249497088"));
+		// orderIndex is "0"
+		assertThat(testResultProperties.getColumn("n.orderIndex").get(0).toString(), equalTo("0"));
+		// loggingTimestamp is "1412763178849813012"
+		assertThat(testResultProperties.getColumn("n.loggingTimestamp").get(0).toString(),
+				equalTo("1412763178849813012"));
+		// timestamp is "-1"
+		assertThat(testResultProperties.getColumn("n.timestamp").get(0).toString(), equalTo("1412763178849798259"));
 		store.commitTransaction();
 	}
 }
