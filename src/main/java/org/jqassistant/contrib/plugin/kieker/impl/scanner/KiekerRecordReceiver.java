@@ -75,6 +75,7 @@ public class KiekerRecordReceiver implements IMonitoringRecordReceiver {
 	 * @param record A KiekerMetadataRecord of the kieker file.
 	 */
 	private void addMetadata(KiekerMetadataRecord record) {
+		recordDescriptor.setLoggingTimestamp(record.getLoggingTimestamp());
 		recordDescriptor.setVersion(record.getVersion());
 		recordDescriptor.setControllerName(record.getControllerName());
 		recordDescriptor.setHostname(record.getHostname());
