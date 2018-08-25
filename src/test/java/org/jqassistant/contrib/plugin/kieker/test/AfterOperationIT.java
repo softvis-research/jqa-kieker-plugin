@@ -24,7 +24,7 @@ public class AfterOperationIT extends AbstractPluginIT {
 		// 5 methods.
 		assertThat(testResultAfterOperation.getColumn("m").size(), equalTo(5));
 
-		// test property values a AfterOperationEvent
+		// test property values of an AfterOperationEvent
 		TestResult testResultProperties = query(
 				"MATCH (n:AfterOperation) Where n.traceId=3881283897249497088 and n.orderIndex=2 RETURN n.traceId, n.orderIndex, n.loggingTimestamp, n.timestamp");
 		// traceId is "3881283897249497088"

@@ -24,7 +24,7 @@ public class BeforeOperationIT extends AbstractPluginIT {
 		// 5 methods.
 		assertThat(testResultBeforeOperation.getColumn("m").size(), equalTo(5));
 
-		// test property values a BeforeOperationEvent
+		// test property values of a BeforeOperationEvent
 		TestResult testResultProperties = query(
 				"MATCH (n:BeforeOperation) Where n.traceId=3881283897249497088 and n.orderIndex=0 RETURN n.traceId, n.orderIndex, n.loggingTimestamp, n.timestamp");
 		// traceId is "3881283897249497088"
