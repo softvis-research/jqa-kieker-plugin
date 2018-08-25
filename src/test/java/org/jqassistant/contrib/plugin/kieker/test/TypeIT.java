@@ -22,6 +22,16 @@ public class TypeIT extends AbstractPluginIT {
 		TestResult testResultType = query("MATCH (:Type)-[:DECLARES]->(m:Method) RETURN m");
 		// Every Method is declared by a Type.
 		assertThat(testResultType.getColumn("m").size(), equalTo(10));
+
+		// test property values of a type
+		TestResult testResultProperties = query(
+				"Match (t:Type) Where t.signature = \"kieker.examples.monitoring.aspectj.BookstoreStarter\" return t.signature");
+		// signature is "kieker.examples.monitoring.aspectj.BookstoreStarter"
+		assertThat(testResultProperties.getColumn("t.signature").get(0).toString(),
+				equalTo("kieker.examples.monitoring.aspectj.BookstoreStarter"));
+		// 6 methods have this type
+		assertThat(testResultProperties.getColumn("t.signature").size(), equalTo(6));
 		store.commitTransaction();
+
 	}
 }
