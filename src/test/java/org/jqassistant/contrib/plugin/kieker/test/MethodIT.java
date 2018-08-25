@@ -23,6 +23,15 @@ public class MethodIT extends AbstractPluginIT {
 		// Every Method has a Before- and AfterOperationEvent. With each 5
 		// Before-/AfterOper... the file contains 10 Methods.
 		assertThat(testResultMethod.getColumn("m").size(), equalTo(10));
+
+		// test property values of two methods
+		TestResult testResultProperties = query(
+				"MATCH (m:Method) where m.signature=\"public void kieker.examples.monitoring.aspectj.Bookstore.searchBook()\" RETURN m.signature");
+		// signature is "3881283897249497088"
+		assertThat(testResultProperties.getColumn("m.signature").get(0).toString(),
+				equalTo("public void kieker.examples.monitoring.aspectj.Bookstore.searchBook()"));
+		// two events have this function -> 1 After- plus 1 BeforeOperationEvent
+		assertThat(testResultProperties.getColumn("m.signature").size(), equalTo(2));
 		store.commitTransaction();
 	}
 }
