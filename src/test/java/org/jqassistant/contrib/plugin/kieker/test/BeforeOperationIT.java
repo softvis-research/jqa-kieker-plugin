@@ -34,7 +34,7 @@ public class BeforeOperationIT extends AbstractPluginIT {
 		// loggingTimestamp is "1412763178849813012"
 		assertThat(testResultProperties.getColumn("n.loggingTimestamp").get(0).toString(),
 				equalTo("1412763178849813012"));
-		// timestamp is "-1"
+		// timestamp is "1412763178849798259"
 		assertThat(testResultProperties.getColumn("n.timestamp").get(0).toString(), equalTo("1412763178849798259"));
 		store.commitTransaction();
 	}

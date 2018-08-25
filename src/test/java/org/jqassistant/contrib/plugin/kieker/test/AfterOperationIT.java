@@ -23,6 +23,19 @@ public class AfterOperationIT extends AbstractPluginIT {
 		// Every AfterOperationEvent calls one method. So 5 AfterOperationEvents call
 		// 5 methods.
 		assertThat(testResultAfterOperation.getColumn("m").size(), equalTo(5));
+
+		// test property values a AfterOperationEvent
+		TestResult testResultProperties = query(
+				"MATCH (n:AfterOperation) Where n.traceId=3881283897249497088 and n.orderIndex=2 RETURN n.traceId, n.orderIndex, n.loggingTimestamp, n.timestamp");
+		// traceId is "3881283897249497088"
+		assertThat(testResultProperties.getColumn("n.traceId").get(0).toString(), equalTo("3881283897249497088"));
+		// orderIndex is "2"
+		assertThat(testResultProperties.getColumn("n.orderIndex").get(0).toString(), equalTo("2"));
+		// loggingTimestamp is "1412763178853435612"
+		assertThat(testResultProperties.getColumn("n.loggingTimestamp").get(0).toString(),
+				equalTo("1412763178853435612"));
+		// timestamp is "1412763178853429518"
+		assertThat(testResultProperties.getColumn("n.timestamp").get(0).toString(), equalTo("1412763178853429518"));
 		store.commitTransaction();
 	}
 }
