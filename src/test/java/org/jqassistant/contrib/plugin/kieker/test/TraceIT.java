@@ -30,6 +30,25 @@ public class TraceIT extends AbstractPluginIT {
 		// Number of Before- and AfterOperationEvents has to be the same.
 		Integer aSize = testResultAfterOperation.getColumn("a").size();
 		assertThat(testResultBeforeOperation.getColumn("b").size(), equalTo(aSize));
+
+		// test property values
+		TestResult testResultProperties = query(
+				"MATCH (n:Trace) Where n.threadId=1 RETURN n.threadId, n.traceId, n.hostname, n.parentOrderId, n.sessionId, n.parentTraceId, n.loggingTimestamp");
+		// threadId is "1"
+		assertThat(testResultProperties.getColumn("n.threadId").get(0).toString(), equalTo("1"));
+		// traceId is "3881283897249497088"
+		assertThat(testResultProperties.getColumn("n.traceId").get(0).toString(), equalTo("3881283897249497088"));
+		// hostname is ""
+		assertThat(testResultProperties.getColumn("n.hostname").get(0).toString(), equalTo("SE"));
+		// parentOrderId is "-1"
+		assertThat(testResultProperties.getColumn("n.parentOrderId").get(0).toString(), equalTo("-1"));
+		// sessionId is "<no-session-id>"
+		assertThat(testResultProperties.getColumn("n.sessionId").get(0).toString(), equalTo("<no-session-id>"));
+		// parentTraceId is "3881283897249497088"
+		assertThat(testResultProperties.getColumn("n.parentTraceId").get(0).toString(), equalTo("3881283897249497088"));
+		// loggingTimestamp is "1412763178834633375"
+		assertThat(testResultProperties.getColumn("n.loggingTimestamp").get(0).toString(),
+				equalTo("1412763178834633375"));
 		store.commitTransaction();
 	}
 }

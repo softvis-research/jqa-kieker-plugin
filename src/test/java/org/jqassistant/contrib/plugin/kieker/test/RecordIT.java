@@ -22,6 +22,7 @@ public class RecordIT extends AbstractPluginIT {
 		// one record with two traces
 		assertThat(testResult.getColumn("t").size(), equalTo(2));
 
+		// test property values
 		TestResult testResultProperties = query(
 				"MATCH (n:Record) RETURN n.hostname, n.fileName, n.numberOfRecords, n.controllerName, n.timeOffset, n.experimentId, n.version, n.debugMode, n.loggingTimestamp, n.timeUnit");
 		// hostname is "SE"
