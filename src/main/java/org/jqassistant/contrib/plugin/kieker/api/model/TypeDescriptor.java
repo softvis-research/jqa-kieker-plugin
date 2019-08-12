@@ -15,5 +15,5 @@ import java.util.List;
 public interface TypeDescriptor extends KiekerDescriptor, FullQualifiedNameDescriptor, NamedDescriptor {
 
     @Relation("DECLARES")
-    List<MethodDescriptor> getMethods();
+    List<MethodDescriptor> getDeclaredMethods();
 }
