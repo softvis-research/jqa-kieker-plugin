@@ -107,7 +107,7 @@ public class KiekerHelper {
             return methodDescriptor;
         } else {
             methodDescriptor = scannerContext.getStore().create(MethodDescriptor.class);
-            methodDescriptor.setName(StringUtils.substringBetween(signature, " ", "("));
+            methodDescriptor.setName(signature.substring(StringUtils.lastIndexOf(signature, '.'), StringUtils.indexOf(signature, '(')));
             methodDescriptor.setSignature(signature);
             parent.getDeclaredMethods().add(methodDescriptor);
             return methodDescriptor;
