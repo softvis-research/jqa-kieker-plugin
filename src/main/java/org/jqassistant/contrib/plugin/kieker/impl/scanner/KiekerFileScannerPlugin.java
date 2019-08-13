@@ -57,6 +57,8 @@ public class KiekerFileScannerPlugin extends AbstractScannerPlugin<FileResource,
      */
     @Override
     public RecordDescriptor scan(FileResource item, String path, Scope scope, Scanner scanner) throws IOException {
+        LOGGER.info("Kieker plugin scans record '{}'", item.getFile().getName());
+        
         // Get context, store, and record descriptor from scanner
         ScannerContext scannerContext = scanner.getContext();
         final FileDescriptor fileDescriptor = scannerContext.getCurrentDescriptor();
