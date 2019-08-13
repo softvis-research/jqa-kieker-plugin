@@ -6,18 +6,20 @@ import kieker.common.record.flow.trace.operation.AbstractOperationEvent;
 import kieker.common.record.flow.trace.operation.AfterOperationEvent;
 import kieker.common.record.flow.trace.operation.BeforeOperationEvent;
 import kieker.common.record.misc.KiekerMetadataRecord;
-import org.apache.commons.lang.StringUtils;
 import org.jqassistant.contrib.plugin.kieker.api.model.*;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class KiekerHelper {
     private ScannerContext scannerContext = null;
     private RecordDescriptor recordDescriptor = null;
     private Map<String, TypeDescriptor> typeCache = null;
     private Map<Long, TraceDescriptor> traceCache = null;
+    private final String REGEX_FOR_METHOD_NAME = "([a-zA-Z0-9_]+) *\\(";
 
     public KiekerHelper(ScannerContext scannerContext, RecordDescriptor recordDescriptor) {
         this.scannerContext = scannerContext;
@@ -107,10 +109,21 @@ public class KiekerHelper {
             return methodDescriptor;
         } else {
             methodDescriptor = scannerContext.getStore().create(MethodDescriptor.class);
-            methodDescriptor.setName(signature.substring(StringUtils.lastIndexOf(signature, '.'), StringUtils.indexOf(signature, '(')));
+            methodDescriptor.setName(getMethodNameFromSignature(signature));
             methodDescriptor.setSignature(signature);
             parent.getDeclaredMethods().add(methodDescriptor);
             return methodDescriptor;
         }
+    }
+
+    private String getMethodNameFromSignature(String signature) {
+        Pattern pattern = Pattern.compile(REGEX_FOR_METHOD_NAME);
+        Matcher matcher = pattern.matcher(signature);
+        while (matcher.find()) {
+            String matchResult = matcher.group();
+            // remove opening parenthesis
+            return matchResult.substring(0, matchResult.length() - 1);
+        }
+        return signature;
     }
 }
