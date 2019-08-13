@@ -17,11 +17,13 @@ public class KiekerHelper {
     private ScannerContext scannerContext = null;
     private RecordDescriptor recordDescriptor = null;
     private Map<String, TypeDescriptor> typeCache = null;
+    private Map<Long, TraceDescriptor> traceCache = null;
 
     public KiekerHelper(ScannerContext scannerContext, RecordDescriptor recordDescriptor) {
         this.scannerContext = scannerContext;
         this.recordDescriptor = recordDescriptor;
         typeCache = new HashMap<String, TypeDescriptor>();
+        traceCache = new HashMap<Long, TraceDescriptor>();
     }
 
     void createRecord(KiekerMetadataRecord record) {
@@ -46,6 +48,7 @@ public class KiekerHelper {
         traceDescriptor.setParentTraceId(trace.getParentTraceId());
         traceDescriptor.setParentOrderId(trace.getParentOrderId());
         recordDescriptor.getTraces().add(traceDescriptor);
+        traceCache.put(trace.getTraceId(), traceDescriptor);
     }
 
     void createEvent(AbstractOperationEvent event) {
@@ -63,25 +66,17 @@ public class KiekerHelper {
             TypeDescriptor typeDescriptor = getTypeDescriptor(event.getClassSignature());
             MethodDescriptor methodDescriptor = getMethodDescriptor(event.getOperationSignature(), typeDescriptor);
             eventDescriptor.getMethods().add(methodDescriptor);
-            getTrace(event.getTraceId()).getEvents().add(eventDescriptor);
-        }
-    }
 
-    private TraceDescriptor getTrace(long traceId) {
-        TraceDescriptor traceDescriptor = null;
-        for (Iterator<TraceDescriptor> iterator = recordDescriptor.getTraces().iterator(); iterator.hasNext(); ) {
-            TraceDescriptor trace = iterator.next();
-            if (trace.getTraceId() == traceId) {
-                traceDescriptor = (TraceDescriptor) trace;
+            TraceDescriptor traceDescriptor = null;
+            if (traceCache.containsKey(event.getTraceId())) {
+                traceDescriptor = traceCache.get(event.getTraceId());
+            } else {
+                traceDescriptor = scannerContext.getStore().create(TraceDescriptor.class);
+                traceDescriptor.setTraceId(event.getTraceId());
+                recordDescriptor.getTraces().add(traceDescriptor);
+                traceCache.put(event.getTraceId(), traceDescriptor);
             }
-        }
-        if (traceDescriptor != null) {
-            return traceDescriptor;
-        } else {
-            traceDescriptor = scannerContext.getStore().create(TraceDescriptor.class);
-            traceDescriptor.setTraceId(traceId);
-            recordDescriptor.getTraces().add(traceDescriptor);
-            return traceDescriptor;
+            traceDescriptor.getEvents().add(eventDescriptor);
         }
     }
 
