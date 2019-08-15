@@ -1,9 +1,9 @@
 package org.jqassistant.contrib.plugin.kieker.api.model;
 
-import java.util.List;
-
 import com.buschmais.xo.neo4j.api.annotation.Label;
 import com.buschmais.xo.neo4j.api.annotation.Relation;
+
+import java.util.List;
 
 /**
  * Defines the label for a Trace of a record. A Trace contains Events. It stores
@@ -13,34 +13,34 @@ import com.buschmais.xo.neo4j.api.annotation.Relation;
 @Label("Trace")
 public interface TraceDescriptor extends KiekerDescriptor {
 
-	@Relation("CONTAINS")
-	List<EventDescriptor> getEvents();
+    @Relation("CONTAINS")
+    List<EventDescriptor> getEvents();
 
-	void setLoggingTimestamp(long timestamp);
+    void setLoggingTimestamp(long timestamp);
 
-	long getLoggingTimestamp();
+    long getLoggingTimestamp();
 
-	void setTraceId(long traceId);
+    void setTraceId(long traceId);
 
-	long getTraceId();
+    long getTraceId();
 
-	void setThreadId(long threadId);
+    void setThreadId(long threadId);
 
-	long getThreadId();
+    long getThreadId();
 
-	void setSessionId(String sessionId);
+    void setSessionId(String sessionId);
 
-	String getSessionId();
+    String getSessionId();
 
-	void setHostname(String hostname);
+    void setHostname(String hostname);
 
-	String getHostname();
+    String getHostname();
 
-	void setParentTraceId(long parentTraceId);
+    void setParentTraceId(long parentTraceId);
 
-	long getParentTraceId();
+    long getParentTraceId();
 
-	void setParentOrderId(int parentOrderId);
+    void setParentOrderId(int parentOrderId);
 
-	int getParentOrderId();
+    int getParentOrderId();
 }
