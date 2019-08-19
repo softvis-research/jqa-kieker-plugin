@@ -16,6 +16,11 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * The Kieker helper creates records, traces, and call graphs.
+ *
+ * @author Richard Mueller
+ */
 public class KiekerHelper {
     private ScannerContext scannerContext = null;
     private RecordDescriptor recordDescriptor = null;

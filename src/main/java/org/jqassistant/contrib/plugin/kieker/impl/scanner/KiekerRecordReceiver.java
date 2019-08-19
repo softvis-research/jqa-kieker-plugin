@@ -7,8 +7,8 @@ import kieker.common.record.flow.trace.operation.AbstractOperationEvent;
 import kieker.common.record.misc.KiekerMetadataRecord;
 
 /**
- * The record receiver maps read records from filesystem directory reader to
- * corresponding descriptors.
+ * The record receiver delegates records from filesystem directory reader to
+ * the Kieker helper.
  *
  * @author Richard Mueller, Matteo Fischer
  */
@@ -20,14 +20,14 @@ public class KiekerRecordReceiver implements IMonitoringRecordReceiver {
     }
 
     /*
-     * Creates record, trace, or event nodes and corresponding relationships.
+     * Delegates records to the Kieker helper.
      *
      * @see kieker.analysis.plugin.reader.util.IMonitoringRecordReceiver#
      * newMonitoringRecord(kieker.common.record.IMonitoringRecord)
      *
      * @param iMonitoringRecord Abstract MonitoringRecord from the kieker file.
      *
-     * @return Always true.
+     * @return true
      */
     @Override
     public boolean newMonitoringRecord(IMonitoringRecord iMonitoringRecord) {
