@@ -1,20 +1,19 @@
 package org.jqassistant.contrib.plugin.kieker.api.model;
 
+import com.buschmais.jqassistant.plugin.common.api.model.NamedDescriptor;
 import com.buschmais.xo.neo4j.api.annotation.Label;
 import com.buschmais.xo.neo4j.api.annotation.Relation;
 
 import java.util.List;
 
 /**
- * Defines the label for a Trace of a record. A Trace contains Events. It stores
- * those properties: traceId, threadId, sessionId, hostname, parentTraceId and
- * parentOrderId
+ * Defines the node for a Trace of a record.
  */
 @Label("Trace")
-public interface TraceDescriptor extends KiekerDescriptor {
+public interface TraceDescriptor extends NamedDescriptor, KiekerDescriptor {
 
     @Relation("CONTAINS")
-    List<EventDescriptor> getEvents();
+    List<MethodDescriptor> getMethods();
 
     void setLoggingTimestamp(long timestamp);
 

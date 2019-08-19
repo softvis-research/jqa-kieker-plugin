@@ -58,7 +58,7 @@ public class KiekerFileScannerPlugin extends AbstractScannerPlugin<FileResource,
     @Override
     public RecordDescriptor scan(FileResource item, String path, Scope scope, Scanner scanner) throws IOException {
         LOGGER.info("Kieker plugin scans record '{}'", item.getFile().getName());
-        
+
         // Get context, store, and record descriptor from scanner
         ScannerContext scannerContext = scanner.getContext();
         final FileDescriptor fileDescriptor = scannerContext.getCurrentDescriptor();
@@ -68,6 +68,7 @@ public class KiekerFileScannerPlugin extends AbstractScannerPlugin<FileResource,
         KiekerRecordReceiver kiekerRecordReceiver = new KiekerRecordReceiver(new KiekerHelper(scannerContext, recordDescriptor));
 
         // Set filesystem directory reader (reads *.map and *.dat files in a directory)
+        // Todo use another reader
         FSDirectoryReader fsDirectoryReader = new FSDirectoryReader(new File(traceDirName), kiekerRecordReceiver, true);
         fsDirectoryReader.run();
 

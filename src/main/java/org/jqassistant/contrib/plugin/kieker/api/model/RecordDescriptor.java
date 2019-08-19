@@ -1,55 +1,55 @@
 package org.jqassistant.contrib.plugin.kieker.api.model;
 
-import java.util.List;
-
 import com.buschmais.jqassistant.plugin.common.api.model.FileDescriptor;
 import com.buschmais.xo.neo4j.api.annotation.Label;
 import com.buschmais.xo.neo4j.api.annotation.Relation;
 
+import java.util.List;
+
 /**
- * Defines the label for a Record stored in a kieker file. A Record contains
+ * Defines the node for a Record stored in a kieker file. A Record contains
  * traces. It stores those properties: version, controllerName, hostname,
- * experimentId, debugMode(Yes or No), timeOffset and numberOfRecords
+ * experimentId, debugMode(Yes or No), timeOffset and numberOfRecords.
  */
 @Label("Record")
 public interface RecordDescriptor extends KiekerDescriptor, FileDescriptor {
 
-	@Relation("CONTAINS")
-	List<TraceDescriptor> getTraces();
+    @Relation("CONTAINS")
+    List<TraceDescriptor> getTraces();
 
-	void setLoggingTimestamp(long timestamp);
+    void setLoggingTimestamp(long timestamp);
 
-	long getLoggingTimestamp();
+    long getLoggingTimestamp();
 
-	void setVersion(String version);
+    void setVersion(String version);
 
-	String getVersion();
+    String getVersion();
 
-	void setControllerName(String controllerName);
+    void setControllerName(String controllerName);
 
-	String getControllerName();
+    String getControllerName();
 
-	void setHostname(String hostname);
+    void setHostname(String hostname);
 
-	String getHostname();
+    String getHostname();
 
-	void setExperimentId(int experimentId);
+    void setExperimentId(int experimentId);
 
-	int getExperimentId();
+    int getExperimentId();
 
-	void setDebugMode(boolean debugMode);
+    void setDebugMode(boolean debugMode);
 
-	boolean getDebugMode();
+    boolean getDebugMode();
 
-	void setTimeOffset(long timeOffset);
+    void setTimeOffset(long timeOffset);
 
-	long getTimeOffset();
+    long getTimeOffset();
 
-	void setTimeUnit(String timeUnit);
+    void setTimeUnit(String timeUnit);
 
-	String getTimeUnit();
+    String getTimeUnit();
 
-	void setNumberOfRecords(long numberOfRecords);
+    void setNumberOfRecords(long numberOfRecords);
 
-	long getNumberOfRecords();
+    long getNumberOfRecords();
 }
