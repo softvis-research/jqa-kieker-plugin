@@ -36,7 +36,7 @@ public class KiekerRecordReceiver implements IMonitoringRecordReceiver {
         } else if (iMonitoringRecord instanceof TraceMetadata) {
             kiekerHelper.createTrace((TraceMetadata) iMonitoringRecord);
         } else if (iMonitoringRecord instanceof AbstractOperationEvent) {
-            kiekerHelper.createCallGraph((AbstractOperationEvent) iMonitoringRecord);
+            kiekerHelper.createEvent((AbstractOperationEvent) iMonitoringRecord);
         }
         return true;
     }

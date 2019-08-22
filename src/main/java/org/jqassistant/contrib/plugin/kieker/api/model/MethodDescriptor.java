@@ -6,8 +6,6 @@ import com.buschmais.xo.neo4j.api.annotation.Label;
 import com.buschmais.xo.neo4j.api.annotation.Property;
 import com.buschmais.xo.neo4j.api.annotation.Relation;
 
-import java.util.Set;
-
 /**
  * Defines the node for a Method.
  */
@@ -15,10 +13,10 @@ import java.util.Set;
 public interface MethodDescriptor extends KiekerDescriptor, NamedDescriptor {
 
     @Relation.Outgoing
-    Set<CallsDescriptor> getCallee();
+    CallsDescriptor getCallee();
 
     @Relation.Incoming
-    Set<CallsDescriptor> getCaller();
+    CallsDescriptor getCaller();
 
     @Property("signature")
     @Indexed
@@ -26,15 +24,15 @@ public interface MethodDescriptor extends KiekerDescriptor, NamedDescriptor {
 
     String getSignature();
 
-    void setBeforeTimestamp(long beforeTimestamp);
-
-    long getBeforeTimestamp();
-
-    void setAfterTimestamp(long afterTimestamp);
-
-    long getAfterTimestamp();
-
     void setDuration(long duration);
 
     long getDuration();
+
+    void setIncomingCalls(int incomingCalls);
+
+    int getIncomingCalls();
+
+    void setOutgoingCalls(int outgoingCalls);
+
+    int getOutgoingCalls();
 }

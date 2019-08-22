@@ -1,0 +1,52 @@
+<jqa:jqassistant-rules xmlns:jqa="http://www.buschmais.com/jqassistant/core/analysis/rules/schema/v1.0">
+    <group id="default">
+        <includeConcept refId="duration:Method"/>
+        <includeConcept refId="calls:Method"/>
+        <includeConcept refId="dependencies:Type"/>
+    </group>
+    <concept id="duration:Method">
+        <description>Calculates the duration of each method based on execution events.
+        </description>
+        <cypher><![CDATA[
+             MATCH
+                (e:Execution)-[:EXECUTION]->(m:Method)
+             WITH
+                m, SUM(e.afterTimestamp - e.beforeTimestamp) AS duration
+             SET
+                m.duration = duration
+             RETURN
+               m, duration
+        ]]></cypher>
+    </concept>
+    <concept id="calls:Method">
+        <description>Creates the call graph, i.e., the CALLS relationships between methods based on call events.
+        </description>
+        <cypher><![CDATA[
+             MATCH
+                (c:Call)-[:CALLER]->(caller:Method)
+             MATCH
+                (c:Call)-[:CALLEE]->(callee:Method)
+             MERGE
+               (caller)-[calls:CALLS]->(callee)
+             RETURN
+                caller, callee, calls
+        ]]></cypher>
+    </concept>
+    <concept id="dependencies:Type">
+        <requiresConcept refId="calls:Method"/>
+        <description>Creates the dependency graph, i.e., the DEPENDS_ON relationship between types if there are method
+            calls between them.
+        </description>
+        <cypher><![CDATA[
+               MATCH
+                 (dependent:Type)-[:DECLARES]->(:Method)-[:CALLS]->(:Method)<-[:DECLARES]-(dependency:Type)
+               WHERE
+                 dependent<>dependency
+               MERGE
+                 (dependent)-[depends:DEPENDS_ON]->(dependency)
+               RETURN
+                 dependent, dependency, depends
+        ]]></cypher>
+    </concept>
+
+</jqa:jqassistant-rules>

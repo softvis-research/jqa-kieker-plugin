@@ -8,11 +8,13 @@
         <class>org.jqassistant.contrib.plugin.kieker.api.model.RecordDescriptor</class>
         <class>org.jqassistant.contrib.plugin.kieker.api.model.CallsDescriptor</class>
         <class>org.jqassistant.contrib.plugin.kieker.api.model.TypeDependsOnDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.kieker.api.model.CallEventDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.kieker.api.model.ExecutionEventDescriptor</class>
     </model>
     <scanner>
         <class>org.jqassistant.contrib.plugin.kieker.impl.scanner.KiekerFileScannerPlugin</class>
     </scanner>
     <rules>
-        <resource>dependencygraph.xml</resource>
+        <resource>kieker.xml</resource>
     </rules>
 </jqa-plugin:jqassistant-plugin>

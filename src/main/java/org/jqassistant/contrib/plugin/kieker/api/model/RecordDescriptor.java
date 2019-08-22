@@ -37,10 +37,6 @@ public interface RecordDescriptor extends KiekerDescriptor, FileDescriptor {
 
     int getExperimentId();
 
-    void setDebugMode(boolean debugMode);
-
-    boolean getDebugMode();
-
     void setTimeOffset(long timeOffset);
 
     long getTimeOffset();

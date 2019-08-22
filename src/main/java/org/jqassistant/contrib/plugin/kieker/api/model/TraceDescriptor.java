@@ -13,7 +13,7 @@ import java.util.List;
 public interface TraceDescriptor extends NamedDescriptor, KiekerDescriptor {
 
     @Relation("CONTAINS")
-    List<MethodDescriptor> getMethods();
+    List<EventDescriptor> getEvents();
 
     void setLoggingTimestamp(long timestamp);
 
@@ -34,12 +34,4 @@ public interface TraceDescriptor extends NamedDescriptor, KiekerDescriptor {
     void setHostname(String hostname);
 
     String getHostname();
-
-    void setParentTraceId(long parentTraceId);
-
-    long getParentTraceId();
-
-    void setParentOrderId(int parentOrderId);
-
-    int getParentOrderId();
 }

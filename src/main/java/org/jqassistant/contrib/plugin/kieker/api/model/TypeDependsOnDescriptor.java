@@ -13,9 +13,4 @@ public interface TypeDependsOnDescriptor extends Descriptor {
 
     @Outgoing
     TypeDescriptor getDependent();
-
-    Integer getWeight();
-
-    void setWeight(Integer weight);
-
 }

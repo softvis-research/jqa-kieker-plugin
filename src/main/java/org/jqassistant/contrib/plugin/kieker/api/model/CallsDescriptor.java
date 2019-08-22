@@ -11,17 +11,4 @@ public interface CallsDescriptor extends Descriptor {
 
     @Relation.Incoming
     MethodDescriptor getCaller();
-
-    long getTraceId();
-
-    void setTraceId(long traceId);
-
-    long getTimestamp();
-
-    void setTimestamp(long timestamp);
-
-    void setCallOrderIndex(int callOrderIndex);
-
-    int getCallOrderIndex();
-
 }
