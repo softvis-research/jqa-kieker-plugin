@@ -1,16 +1,20 @@
 <jqa-plugin:jqassistant-plugin
-    xmlns:jqa-plugin="http://www.buschmais.com/jqassistant/core/plugin/schema/v1.1" name="Kieker Scanner">
+    xmlns:jqa-plugin="http://www.buschmais.com/jqassistant/core/plugin/schema/v1.1" name="Kieker">
     <description>Provides a scanner for Kieker files.</description>
     <model>
         <class>org.jqassistant.contrib.plugin.kieker.api.model.MethodDescriptor</class>
-        <class>org.jqassistant.contrib.plugin.kieker.api.model.AfterOperationEventDescriptor</class>
-        <class>org.jqassistant.contrib.plugin.kieker.api.model.BeforeOperationEventDescriptor</class>
-        <class>org.jqassistant.contrib.plugin.kieker.api.model.EventDescriptor</class>
         <class>org.jqassistant.contrib.plugin.kieker.api.model.TraceDescriptor</class>
         <class>org.jqassistant.contrib.plugin.kieker.api.model.TypeDescriptor</class>
         <class>org.jqassistant.contrib.plugin.kieker.api.model.RecordDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.kieker.api.model.CallsDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.kieker.api.model.TypeDependsOnDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.kieker.api.model.CallEventDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.kieker.api.model.ExecutionEventDescriptor</class>
     </model>
     <scanner>
         <class>org.jqassistant.contrib.plugin.kieker.impl.scanner.KiekerFileScannerPlugin</class>
     </scanner>
+    <rules>
+        <resource>kieker.xml</resource>
+    </rules>
 </jqa-plugin:jqassistant-plugin>

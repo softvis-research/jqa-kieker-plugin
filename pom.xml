@@ -3,35 +3,51 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.jqassistant.contrib.common</groupId>
+        <artifactId>parent</artifactId>
+        <version>1.6.0</version>
+    </parent>
+
     <groupId>org.jqassistant.contrib.plugin.kieker</groupId>
     <artifactId>jqa-kieker-plugin</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
+    <name>jQAssistant Kieker Plugin</name>
+    <description>The jQAssistant plugin to scan and to analyze Kieker trace logs.</description>
+    <url>http://jqassistant.org/</url>
+
+    <developers>
+        <developer>
+            <id>matteo-fischer</id>
+            <name>Matteo Fischer</name>
+        </developer>
+        <developer>
+            <id>richard-mueller</id>
+            <name>Richard Mueller</name>
+            <email>rmueller@wifa.uni-leipzig.de</email>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>GNU General Public License, v3</name>
+            <url>http://www.gnu.org/licenses/gpl-3.0.html</url>
+        </license>
+    </licenses>
+
     <properties>
-        <jqassistant.version>1.4.0</jqassistant.version>
+        <org.hamcrest.version>2.0.0.0</org.hamcrest.version>
     </properties>
 
     <build>
         <plugins>
-        	<plugin>
-         <groupId>com.buschmais.jqassistant</groupId>
-         <artifactId>jqassistant-maven-plugin</artifactId>
-         <version>${jqassistant.version}</version>
-              <dependencies>
-            <dependency>
-              <groupId>org.jqassistant.contrib.plugin.kieker</groupId>
-              <artifactId>jqa-kieker-plugin</artifactId>
-              <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-          </dependencies>
-       		</plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -56,57 +72,93 @@
         </plugins>
     </build>
 
-    <!-- tag::dependencies[] -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- jQAssistant -->
+            <!-- unit tests -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>1.10.19</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
-        <dependency>
-            <groupId>com.buschmais.jqassistant.core</groupId>
-            <artifactId>scanner</artifactId>
-            <version>1.4.0</version>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>com.buschmais.jqassistant.plugin</groupId>
             <artifactId>common</artifactId>
-            <version>1.4</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>4.1</version>
+            <groupId>com.buschmais.jqassistant.core</groupId>
+            <artifactId>shared</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- Test dependencies -->
+        <dependency>
+            <groupId>com.buschmais.jqassistant.core</groupId>
+            <artifactId>scanner</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.buschmais.jqassistant.core</groupId>
+            <artifactId>report</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>com.buschmais.jqassistant.core</groupId>
             <artifactId>plugin</artifactId>
-            <version>1.4.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.buschmais.jqassistant.neo4jserver</groupId>
-            <artifactId>neo4jv3</artifactId>
-            <version>1.4.0</version>
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.buschmais.jqassistant.plugin</groupId>
             <artifactId>common</artifactId>
             <type>test-jar</type>
-            <version>1.4</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.buschmais.jqassistant.core</groupId>
+            <artifactId>store</artifactId>
+            <type>test-jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.buschmais.jqassistant.core</groupId>
+            <artifactId>analysis</artifactId>
+            <type>test-jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.buschmais.xo</groupId>
+            <artifactId>xo.neo4j.embedded</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.buschmais.jqassistant.neo4jserver</groupId>
+            <artifactId>neo4jv3</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>java-hamcrest</artifactId>
+            <version>${org.hamcrest.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>1.7.13</version>
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.kieker-monitoring</groupId>
@@ -114,7 +166,7 @@
             <version>1.14-SNAPSHOT</version>
         </dependency>
     </dependencies>
-    <!-- end::dependencies[] -->
+
     <repositories>
         <repository>
             <id>sonatype.oss.snapshots</id>
