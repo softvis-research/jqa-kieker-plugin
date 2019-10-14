@@ -23,9 +23,9 @@
         </description>
         <cypher><![CDATA[
              MATCH
-                (c:Call)-[:CALLER]->(caller:Method)
+                (c:Call)-[:CALLED_BY]->(caller:Method)
              MATCH
-                (c:Call)-[:CALLEE]->(callee:Method)
+                (c:Call)-[:CALLS]->(callee:Method)
              MERGE
                (caller)-[calls:CALLS]->(callee)
              RETURN
