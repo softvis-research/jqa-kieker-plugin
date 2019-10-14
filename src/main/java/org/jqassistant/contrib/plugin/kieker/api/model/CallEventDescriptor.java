@@ -9,12 +9,12 @@ import com.buschmais.xo.neo4j.api.annotation.Relation;
  */
 @Label("Call")
 public interface CallEventDescriptor extends EventDescriptor, Descriptor {
-    @Relation("CALLER")
+    @Relation("CALLED_BY")
     MethodDescriptor getCaller();
 
     void setCaller(MethodDescriptor caller);
 
-    @Relation("CALLEE")
+    @Relation("CALLS")
     MethodDescriptor getCallee();
 
     void setCallee(MethodDescriptor callee);
