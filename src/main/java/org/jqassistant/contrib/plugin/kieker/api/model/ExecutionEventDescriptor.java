@@ -9,7 +9,7 @@ import com.buschmais.xo.neo4j.api.annotation.Relation;
  */
 @Label("Execution")
 public interface ExecutionEventDescriptor extends EventDescriptor, Descriptor {
-    @Relation("EXECUTION")
+    @Relation("EXECUTES")
     MethodDescriptor getExecutedMethod();
 
     void setExecutedMethod(MethodDescriptor executedMethod);
