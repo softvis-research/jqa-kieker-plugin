@@ -71,7 +71,6 @@
                                 <include>kieker/analysisteetime/*/**</include>
                                 <include>kieker/analysis/plugin/*/**</include>
                                 <include>kieker/common/*/**</include>
-                                <!--<include>META-INF/jqassistant-plugin.xml</include>-->
                             </includes>
                         </filter>
                     </filters>
