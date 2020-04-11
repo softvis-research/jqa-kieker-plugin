@@ -68,8 +68,8 @@
                         <filter>
                             <artifact>net.kieker-monitoring:kieker</artifact>
                             <includes>
-                                <include>kieker/analysisteetime/plugin/reader/filesystem/fsReader/*</include>
-                                <include>kieker/analysis/plugin/reader/util/*</include>
+                                <include>kieker/analysisteetime/*/**</include>
+                                <include>kieker/analysis/plugin/*/**</include>
                                 <include>kieker/common/*/**</include>
                                 <!--<include>META-INF/jqassistant-plugin.xml</include>-->
                             </includes>
