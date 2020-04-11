@@ -62,6 +62,7 @@
                             <artifact>org.jqassistant.contrib.plugin.kieker:jqa-kieker-plugin</artifact>
                             <includes>
                                 <include>org/jqassistant/contrib/plugin/kieker/*/**</include>
+                                <include>META-INF/jqassistant-plugin.xml</include>
                             </includes>
                         </filter>
                         <filter>
@@ -70,6 +71,7 @@
                                 <include>kieker/analysisteetime/plugin/reader/filesystem/fsReader/*</include>
                                 <include>kieker/analysis/plugin/reader/util/*</include>
                                 <include>kieker/common/*/**</include>
+                                <!--<include>META-INF/jqassistant-plugin.xml</include>-->
                             </includes>
                         </filter>
                     </filters>
@@ -81,6 +83,7 @@
                             <exclude>javax.xml.bind:*</exclude>
                             <exclude>javax.ws.rs:*</exclude>
                             <exclude>com.sun.jersey:*</exclude>
+                            <exclude>META-INF/jqassistant-plugin.xml</exclude>
                         </excludes>
                     </artifactSet>
                 </configuration>
