@@ -3,118 +3,182 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.jqassistant.contrib.common</groupId>
+        <artifactId>parent</artifactId>
+        <version>1.8.0</version>
+    </parent>
+
     <groupId>org.jqassistant.contrib.plugin.kieker</groupId>
     <artifactId>jqa-kieker-plugin</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
-    <properties>
-        <jqassistant.version>1.4.0</jqassistant.version>
-    </properties>
+    <name>jQAssistant Kieker Plugin</name>
+    <description>A jQAssistant plugin to scan and to analyze Kieker trace event logs.
+    </description>
+    <url>http://jqassistant.org/</url>
+
+    <developers>
+        <developer>
+            <id>richard-mueller</id>
+            <name>Richard Müller</name>
+            <email>rmueller@wifa.uni-leipzig.de</email>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>GNU General Public License, v3</name>
+            <url>http://www.gnu.org/licenses/gpl-3.0.html</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git@github.com:softvis-research/jqa-kieker-plugin.git</connection>
+        <developerConnection>scm:git:git@github.com:softvis-research/jqa-kieker-plugin.git</developerConnection>
+        <url>https://github.com/softvis-research/jqa-kieker-plugin.git</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <build>
         <plugins>
-        	<plugin>
-         <groupId>com.buschmais.jqassistant</groupId>
-         <artifactId>jqassistant-maven-plugin</artifactId>
-         <version>${jqassistant.version}</version>
-              <dependencies>
-            <dependency>
-              <groupId>org.jqassistant.contrib.plugin.kieker</groupId>
-              <artifactId>jqa-kieker-plugin</artifactId>
-              <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-          </dependencies>
-       		</plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.1.1</version>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.2</version>
+                <configuration>
+                    <minimizeJar>true</minimizeJar>
+                    <filters>
+                        <filter>
+                            <!-- include own classes -->
+                            <artifact>org.jqassistant.contrib.plugin.kieker:jqa-kieker-plugin</artifact>
+                            <includes>
+                                <include>org/jqassistant/contrib/plugin/kieker/*/**</include>
+                            </includes>
+                        </filter>
+                        <filter>
+                            <artifact>net.kieker-monitoring:kieker</artifact>
+                            <includes>
+                                <include>kieker/analysisteetime/plugin/reader/filesystem/fsReader/*</include>
+                                <include>kieker/analysis/plugin/reader/util/*</include>
+                                <include>kieker/common/*/**</include>
+                            </includes>
+                        </filter>
+                    </filters>
+                    <!-- exclude artifacts to avoid collisions with existing plugins in command line distribution -->
+                    <artifactSet>
+                        <excludes>
+                            <exclude>com.buschmais.jqassistant.core:*</exclude>
+                            <exclude>com.buschmais.xo:*</exclude>
+                            <exclude>javax.xml.bind:*</exclude>
+                            <exclude>javax.ws.rs:*</exclude>
+                            <exclude>com.sun.jersey:*</exclude>
+                        </excludes>
+                    </artifactSet>
+                </configuration>
                 <executions>
                     <execution>
-                        <id>copy-dependencies</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>copy-dependencies</goal>
+                            <goal>shade</goal>
                         </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/plugin-dependencies</outputDirectory>
-                            <includeScope>runtime</includeScope>
-                            <prependGroupId>true</prependGroupId>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
 
-    <!-- tag::dependencies[] -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
-        <dependency>
-            <groupId>com.buschmais.jqassistant.core</groupId>
-            <artifactId>scanner</artifactId>
-            <version>1.4.0</version>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>com.buschmais.jqassistant.plugin</groupId>
             <artifactId>common</artifactId>
-            <version>1.4</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>4.1</version>
-            <scope>provided</scope>
+            <groupId>com.buschmais.jqassistant.core</groupId>
+            <artifactId>shared</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-        <!-- Test dependencies -->
+        <dependency>
+            <groupId>com.buschmais.jqassistant.core</groupId>
+            <artifactId>scanner</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.buschmais.jqassistant.core</groupId>
+            <artifactId>report</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.buschmais.jqassistant.core</groupId>
             <artifactId>plugin</artifactId>
-            <version>1.4.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.buschmais.jqassistant.neo4jserver</groupId>
-            <artifactId>neo4jv3</artifactId>
-            <version>1.4.0</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.buschmais.jqassistant.plugin</groupId>
             <artifactId>common</artifactId>
             <type>test-jar</type>
-            <version>1.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.buschmais.jqassistant.core</groupId>
+            <artifactId>store</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.buschmais.jqassistant.core</groupId>
+            <artifactId>analysis</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.buschmais.xo</groupId>
+            <artifactId>xo.neo4j.embedded</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.buschmais.jqassistant.neo4jserver</groupId>
+            <artifactId>neo4jv3</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.7.13</version>
-            <scope>test</scope>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
         </dependency>
+        <!-- <dependency>
+             <groupId>org.slf4j</groupId>
+             <artifactId>slf4j-simple</artifactId>
+         </dependency>-->
         <dependency>
             <groupId>net.kieker-monitoring</groupId>
             <artifactId>kieker</artifactId>
             <version>1.14-SNAPSHOT</version>
         </dependency>
     </dependencies>
-    <!-- end::dependencies[] -->
+
     <repositories>
         <repository>
             <id>sonatype.oss.snapshots</id>
