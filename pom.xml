@@ -6,25 +6,35 @@
     <parent>
         <groupId>org.jqassistant.contrib.common</groupId>
         <artifactId>parent</artifactId>
-        <version>1.8.0</version>
+        <version>1.7.0</version>
     </parent>
 
     <groupId>org.jqassistant.contrib.plugin.kieker</groupId>
     <artifactId>jqa-kieker-plugin</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.0.1</version>
 
     <name>jQAssistant Kieker Plugin</name>
-    <description>A jQAssistant plugin to scan and to analyze Kieker trace event logs.
-    </description>
+    <description>The jQAssistant plugin to scan and to analyze Kieker trace logs.</description>
     <url>http://jqassistant.org/</url>
 
     <developers>
         <developer>
+            <id>matteo-fischer</id>
+            <name>Matteo Fischer</name>
+        </developer>
+        <developer>
             <id>richard-mueller</id>
-            <name>Richard Müller</name>
+            <name>Richard Mueller</name>
             <email>rmueller@wifa.uni-leipzig.de</email>
         </developer>
     </developers>
+
+    <scm>
+        <connection>scm:git:git@github.com:softvis-research/jqa-kieker-plugin.git</connection>
+        <developerConnection>scm:git:git@github.com:/softvis-research/jqa-kieker-plugin.git</developerConnection>
+        <url>https://github.com//softvis-research/jqa-kieker-plugin</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <licenses>
         <license>
@@ -33,12 +43,9 @@
         </license>
     </licenses>
 
-    <scm>
-        <connection>scm:git:git@github.com:softvis-research/jqa-kieker-plugin.git</connection>
-        <developerConnection>scm:git:git@github.com:softvis-research/jqa-kieker-plugin.git</developerConnection>
-        <url>https://github.com/softvis-research/jqa-kieker-plugin.git</url>
-        <tag>HEAD</tag>
-    </scm>
+    <properties>
+        <org.hamcrest.version>2.0.0.0</org.hamcrest.version>
+    </properties>
 
     <build>
         <plugins>
@@ -52,43 +59,20 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.2</version>
-                <configuration>
-                    <minimizeJar>false</minimizeJar>
-                    <filters>
-                        <filter>
-                            <!-- include own classes -->
-                            <artifact>org.jqassistant.contrib.plugin.kieker:jqa-kieker-plugin</artifact>
-                            <includes>
-                                <include>org/jqassistant/contrib/plugin/kieker/*/**</include>
-                                <include>META-INF/jqassistant-plugin.xml</include>
-                            </includes>
-                        </filter>
-                        <filter>
-                            <artifact>net.kieker-monitoring:kieker</artifact>
-                            <includes>
-                                <include>kieker/analysisteetime/*/**</include>
-                                <include>kieker/analysis/plugin/*/**</include>
-                                <include>kieker/common/*/**</include>
-                            </includes>
-                        </filter>
-                    </filters>
-                    <!-- exclude artifacts to avoid collisions with existing plugins in command line distribution -->
-                    <artifactSet>
-                        <excludes>
-                            <exclude>com.buschmais.jqassistant.core:*</exclude>
-                            <exclude>com.buschmais.xo:*</exclude>
-                            <exclude>javax.xml.bind:*</exclude>
-                        </excludes>
-                    </artifactSet>
-                </configuration>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.1.1</version>
                 <executions>
                     <execution>
+                        <id>copy-dependencies</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>shade</goal>
+                            <goal>copy-dependencies</goal>
                         </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/plugin-dependencies</outputDirectory>
+                            <includeScope>runtime</includeScope>
+                            <prependGroupId>true</prependGroupId>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -97,10 +81,18 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- jQAssistant -->
+            <!-- unit tests -->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.12</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>1.10.19</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
@@ -110,28 +102,27 @@
         <dependency>
             <groupId>com.buschmais.jqassistant.plugin</groupId>
             <artifactId>common</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.buschmais.jqassistant.core</groupId>
             <artifactId>shared</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-            </exclusions>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.buschmais.jqassistant.core</groupId>
             <artifactId>scanner</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.buschmais.jqassistant.core</groupId>
             <artifactId>report</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.buschmais.jqassistant.core</groupId>
             <artifactId>plugin</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.buschmais.jqassistant.plugin</groupId>
@@ -143,11 +134,13 @@
             <groupId>com.buschmais.jqassistant.core</groupId>
             <artifactId>store</artifactId>
             <type>test-jar</type>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.buschmais.jqassistant.core</groupId>
             <artifactId>analysis</artifactId>
             <type>test-jar</type>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.buschmais.xo</groupId>
@@ -160,17 +153,20 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>java-hamcrest</artifactId>
+            <version>${org.hamcrest.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
-        <!-- <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
-        </dependency>-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>net.kieker-monitoring</groupId>
             <artifactId>kieker</artifactId>
