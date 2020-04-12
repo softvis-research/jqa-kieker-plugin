@@ -29,12 +29,12 @@ public class KiekerFileScannerPlugin extends AbstractScannerPlugin<FileResource,
     private String traceDirName = "src/test/resources";
 
     /* (non-Javadoc)
-     * Checks if the kieker file is a .dat or not.
+     * Checks if the kieker file is a .dat or .bin.
      * @see com.buschmais.jqassistant.core.scanner.api.ScannerPlugin#accepts(java.lang.Object, java.lang.String, com.buschmais.jqassistant.core.scanner.api.Scope)
      */
     @Override
     public boolean accepts(FileResource item, String path, Scope scope) {
-        return path.toLowerCase().endsWith(".dat");
+        return path.toLowerCase().endsWith(".dat") || path.toLowerCase().endsWith(".bin");
     }
 
     /* (non-Javadoc)
