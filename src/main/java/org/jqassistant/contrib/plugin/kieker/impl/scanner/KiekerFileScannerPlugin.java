@@ -25,8 +25,6 @@ import java.io.IOException;
 // this one
 public class KiekerFileScannerPlugin extends AbstractScannerPlugin<FileResource, RecordDescriptor> {
     private static final Logger LOGGER = LoggerFactory.getLogger(KiekerFileScannerPlugin.class);
-    private final String JQASSISTANT_PLUGIN_KIEKER_TRACELOG_DIRNAME = "jqassistant.plugin.kieker.tracelog.dirname";
-    private String traceDirName = "src/test/resources";
 
     /* (non-Javadoc)
      * Checks if the kieker file is a .dat or .bin.
@@ -35,20 +33,6 @@ public class KiekerFileScannerPlugin extends AbstractScannerPlugin<FileResource,
     @Override
     public boolean accepts(FileResource item, String path, Scope scope) {
         return path.toLowerCase().endsWith(".dat") || path.toLowerCase().endsWith(".bin");
-    }
-
-    /* (non-Javadoc)
-     * Sets the directory for the kieker files to scan.
-     * @see com.buschmais.jqassistant.plugin.common.api.scanner.AbstractScannerPlugin#configure()
-     */
-    @Override
-    protected void configure() {
-        super.configure();
-        if (getProperties().containsKey(JQASSISTANT_PLUGIN_KIEKER_TRACELOG_DIRNAME)) {
-            traceDirName = (String) getProperties().get(JQASSISTANT_PLUGIN_KIEKER_TRACELOG_DIRNAME);
-        }
-
-        LOGGER.info("Kieker plugin looks for .map and .dat files in directory '{}'", traceDirName);
     }
 
     /* (non-Javadoc)
