@@ -2,6 +2,7 @@
     <group id="default">
         <includeConcept refId="duration:Method"/>
         <includeConcept refId="calls:Method"/>
+        <includeConcept refId="calls:Type"/>
         <includeConcept refId="dependencies:Type"/>
     </group>
     <concept id="duration:Method">
@@ -35,6 +36,26 @@
                 calls.weight = numberOfCalls
              RETURN
                 caller, callee, calls
+        ]]></cypher>
+    </concept>
+    <concept id="calls:Type">
+        <requiresConcept refId="calls:Method"/>
+        <description>Creates the weighted call graph on type level, i.e., the CALLS relationships between types based on
+            method calls.
+        </description>
+        <cypher><![CDATA[
+            MATCH
+                (caller:Type)-[:DECLARES]->(:Method)-[methodCalls:CALLS]->(:Method)<-[:DECLARES]-(callee:Type)
+            WHERE
+                caller<>callee
+            WITH
+                caller, callee, sum(methodCalls.weight) as aggregatedNumberOfCalls
+            MERGE
+                (caller)-[typeCalls:CALLS]->(callee)
+            SET
+                typeCalls.weight = aggregatedNumberOfCalls
+            RETURN
+                caller, callee, typeCalls
         ]]></cypher>
     </concept>
     <concept id="dependencies:Type">
