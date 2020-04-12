@@ -19,7 +19,8 @@
         ]]></cypher>
     </concept>
     <concept id="calls:Method">
-        <description>Creates the call graph, i.e., the CALLS relationships between methods based on call events.
+        <description>Creates the weighted call graph, i.e., the CALLS relationships between methods based on call
+            events.
         </description>
         <cypher><![CDATA[
              MATCH
@@ -28,6 +29,10 @@
                 (c:Call)-[:CALLS]->(callee:Method)
              MERGE
                (caller)-[calls:CALLS]->(callee)
+             WITH
+                caller, callee, calls, count(calls) as numberOfCalls
+             SET
+                calls.weight = numberOfCalls
              RETURN
                 caller, callee, calls
         ]]></cypher>
