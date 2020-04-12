@@ -55,7 +55,7 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.2.2</version>
                 <configuration>
-                    <minimizeJar>true</minimizeJar>
+                    <minimizeJar>false</minimizeJar>
                     <filters>
                         <filter>
                             <!-- include own classes -->
@@ -80,9 +80,6 @@
                             <exclude>com.buschmais.jqassistant.core:*</exclude>
                             <exclude>com.buschmais.xo:*</exclude>
                             <exclude>javax.xml.bind:*</exclude>
-                            <exclude>javax.ws.rs:*</exclude>
-                            <exclude>com.sun.jersey:*</exclude>
-                            <exclude>META-INF/jqassistant-plugin.xml</exclude>
                         </excludes>
                     </artifactSet>
                 </configuration>
@@ -171,9 +168,9 @@
             <artifactId>mockito-core</artifactId>
         </dependency>
         <!-- <dependency>
-             <groupId>org.slf4j</groupId>
-             <artifactId>slf4j-simple</artifactId>
-         </dependency>-->
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        </dependency>-->
         <dependency>
             <groupId>net.kieker-monitoring</groupId>
             <artifactId>kieker</artifactId>
