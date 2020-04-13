@@ -4,6 +4,7 @@
         <includeConcept refId="calls:Method"/>
         <includeConcept refId="dependencies:Type"/>
         <includeConcept refId="containment:Package"/>
+        <includeConcept refId="dependencies:Package"/>
     </group>
     <concept id="duration:Method">
         <description>Calculates the duration of each method based on execution events.
@@ -40,9 +41,9 @@
     </concept>
     <concept id="dependencies:Type">
         <requiresConcept refId="calls:Method"/>
-        <description>Creates the weighted dependency graph, i.e., the DEPENDS_ON relationship between types if there are
-            method
-            calls between them.
+        <description>Creates the weighted dependency graph on type level, i.e., the DEPENDS_ON relationship between
+            types if there are
+            method calls between them.
         </description>
         <cypher><![CDATA[
                MATCH
@@ -78,6 +79,27 @@
                     (package)-[:CONTAINS]->(type)
                 RETURN
                     package, type
+        ]]></cypher>
+    </concept>
+    <concept id="dependencies:Package">
+        <requiresConcept refId="containment:Package"/>
+        <requiresConcept refId="dependencies:Type"/>
+        <description>Creates the weighted dependency graph on package level, i.e., the DEPENDS_ON relationship between
+            packages if there are DEPENDS_ON relationships between their containing types.
+        </description>
+        <cypher><![CDATA[
+               MATCH
+                    (dependent:Package:Kieker)-[:CONTAINS]->(:Type:Kieker)-[depends:DEPENDS_ON]->(:Type:Kieker)<-[:CONTAINS]-(dependency:Package:Kieker)
+               WHERE
+                    dependent<>dependency
+               WITH
+                    dependent, dependency, SUM(depends.weight) as aggregatedDependencies
+               MERGE
+                 (dependent)-[depends:DEPENDS_ON]->(dependency)
+               SET
+                    depends.weight = aggregatedDependencies
+               RETURN
+                 dependent, dependency, depends
         ]]></cypher>
     </concept>
 </jqa:jqassistant-rules>
