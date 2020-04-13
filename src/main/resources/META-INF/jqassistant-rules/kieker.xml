@@ -2,7 +2,6 @@
     <group id="default">
         <includeConcept refId="duration:Method"/>
         <includeConcept refId="calls:Method"/>
-        <includeConcept refId="calls:Type"/>
         <includeConcept refId="dependencies:Type"/>
     </group>
     <concept id="duration:Method">
@@ -31,48 +30,32 @@
              MERGE
                (caller)-[calls:CALLS]->(callee)
              WITH
-                caller, callee, calls, count(calls) as numberOfCalls
+                caller, callee, calls, COUNT(calls) as numberOfCalls
              SET
                 calls.weight = numberOfCalls
              RETURN
                 caller, callee, calls
         ]]></cypher>
     </concept>
-    <concept id="calls:Type">
-        <requiresConcept refId="calls:Method"/>
-        <description>Creates the weighted call graph on type level, i.e., the CALLS relationships between types based on
-            method calls.
-        </description>
-        <cypher><![CDATA[
-            MATCH
-                (caller:Type)-[:DECLARES]->(:Method)-[methodCalls:CALLS]->(:Method)<-[:DECLARES]-(callee:Type)
-            WHERE
-                caller<>callee
-            WITH
-                caller, callee, sum(methodCalls.weight) as aggregatedNumberOfCalls
-            MERGE
-                (caller)-[typeCalls:CALLS]->(callee)
-            SET
-                typeCalls.weight = aggregatedNumberOfCalls
-            RETURN
-                caller, callee, typeCalls
-        ]]></cypher>
-    </concept>
     <concept id="dependencies:Type">
         <requiresConcept refId="calls:Method"/>
-        <description>Creates the dependency graph, i.e., the DEPENDS_ON relationship between types if there are method
+        <description>Creates the weighted dependency graph, i.e., the DEPENDS_ON relationship between types if there are
+            method
             calls between them.
         </description>
         <cypher><![CDATA[
                MATCH
-                 (dependent:Type)-[:DECLARES]->(:Method)-[:CALLS]->(:Method)<-[:DECLARES]-(dependency:Type)
+                    (dependent:Type)-[:DECLARES]->(:Method)-[calls:CALLS]->(:Method)<-[:DECLARES]-(dependency:Type)
                WHERE
-                 dependent<>dependency
+                    dependent<>dependency
+               WITH
+                    dependent, dependency, SUM(calls.weight) as aggregatedMethodCalls
                MERGE
                  (dependent)-[depends:DEPENDS_ON]->(dependency)
+               SET
+                    depends.weight = aggregatedMethodCalls
                RETURN
                  dependent, dependency, depends
         ]]></cypher>
     </concept>
-
 </jqa:jqassistant-rules>
