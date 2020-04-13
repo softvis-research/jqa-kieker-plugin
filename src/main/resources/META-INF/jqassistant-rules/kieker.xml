@@ -3,6 +3,7 @@
         <includeConcept refId="duration:Method"/>
         <includeConcept refId="calls:Method"/>
         <includeConcept refId="dependencies:Type"/>
+        <includeConcept refId="containment:Package"/>
     </group>
     <concept id="duration:Method">
         <description>Calculates the duration of each method based on execution events.
@@ -56,6 +57,27 @@
                     depends.weight = aggregatedMethodCalls
                RETURN
                  dependent, dependency, depends
+        ]]></cypher>
+    </concept>
+    <concept id="containment:Package">
+        <description>Creates a package derived from the fully qualified name of a type monitored by Kieker and a
+            CONTAINS relationship to this type.
+        </description>
+        <cypher><![CDATA[
+                MATCH
+                    (type:Type:Kieker)
+                WITH
+                    type, SPLIT(type.fqn,'.') AS fqnList
+                WITH
+                    type, REVERSE(tail(REVERSE(fqnList))) AS packageNames
+                WITH
+                    type, HEAD(REVERSE(packageNames)) as packageName, SUBSTRING(REDUCE(tmp="", p IN packageNames | tmp + "." + p),1) as packageFqn
+                MERGE
+                    (package:Package:Kieker {name:packageName, fqn:packageFqn})
+                MERGE
+                    (package)-[:CONTAINS]->(type)
+                RETURN
+                    package, type
         ]]></cypher>
     </concept>
 </jqa:jqassistant-rules>
