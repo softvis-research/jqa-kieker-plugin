@@ -27,12 +27,12 @@ public class KiekerFileScannerPlugin extends AbstractScannerPlugin<FileResource,
     private static final Logger LOGGER = LoggerFactory.getLogger(KiekerFileScannerPlugin.class);
 
     /* (non-Javadoc)
-     * Checks if the kieker file is a .dat or .bin.
+     * Checks if the kieker file is a .dat, .bin, or .xz.
      * @see com.buschmais.jqassistant.core.scanner.api.ScannerPlugin#accepts(java.lang.Object, java.lang.String, com.buschmais.jqassistant.core.scanner.api.Scope)
      */
     @Override
     public boolean accepts(FileResource item, String path, Scope scope) {
-        return path.toLowerCase().endsWith(".dat") || path.toLowerCase().endsWith(".bin");
+        return path.toLowerCase().endsWith(".dat") || path.toLowerCase().endsWith(".bin") || path.toLowerCase().endsWith(".xz");
     }
 
     /* (non-Javadoc)
@@ -50,7 +50,7 @@ public class KiekerFileScannerPlugin extends AbstractScannerPlugin<FileResource,
         // Set record receiver that maps read records to corresponding descriptors
         KiekerRecordReceiver kiekerRecordReceiver = new KiekerRecordReceiver(new KiekerHelper(scannerContext, recordDescriptor));
 
-        // Set filesystem directory reader (reads *.map and *.dat files in a directory)
+        // Set filesystem directory reader (reads *.map, *.dat, *.bin, *.xz files in a directory)
         // Todo use another reader
         FSDirectoryReader fsDirectoryReader = new FSDirectoryReader(item.getFile().getParentFile(), kiekerRecordReceiver, true);
         fsDirectoryReader.run();
