@@ -6,7 +6,7 @@ import com.buschmais.xo.neo4j.api.annotation.Relation.Incoming;
 import com.buschmais.xo.neo4j.api.annotation.Relation.Outgoing;
 
 @Relation("DEPENDS_ON")
-public interface TypeDependsOnDescriptor extends Descriptor {
+public interface TypeDependsOnDescriptor extends Descriptor, WeightDescriptor {
 
     @Incoming
     TypeDescriptor getDependency();

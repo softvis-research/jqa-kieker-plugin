@@ -14,7 +14,7 @@ public interface CallEventDescriptor extends EventDescriptor, Descriptor {
 
     void setCaller(MethodDescriptor caller);
 
-    @Relation("CALLS")
+    @Relation("CALLED")
     MethodDescriptor getCallee();
 
     void setCallee(MethodDescriptor callee);
