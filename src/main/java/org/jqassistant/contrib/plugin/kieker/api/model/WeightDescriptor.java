@@ -8,8 +8,8 @@ import com.buschmais.xo.neo4j.api.annotation.Property;
 public interface WeightDescriptor {
 
     @Property("weight")
-    Integer getWeight();
+    Long getWeight();
 
-    void setWeight(Integer weight);
+    void setWeight(Long weight);
 
 }

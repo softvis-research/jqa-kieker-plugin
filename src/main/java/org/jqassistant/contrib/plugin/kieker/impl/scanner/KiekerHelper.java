@@ -34,25 +34,21 @@ import java.util.regex.Pattern;
 public class KiekerHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KiekerHelper.class);
-    private ScannerContext scannerContext = null;
-    private RecordDescriptor recordDescriptor = null;
+    private ScannerContext scannerContext;
+    private RecordDescriptor recordDescriptor;
     private Cache<MethodDescriptorKey, MethodDescriptor> methodDescriptorCache;
-    private Cache<CallKey, CallsDescriptor> callsDescriptorCache;
-    private Map<Long, TraceDescriptor> traceCache = null;
-    private Map<String, Stack<BeforeOperationEvent>> timestampCache = null;
-    //   private Map<String, CallsDescriptor> callsCache = null;
+    private Cache<CallsDescriptorKey, CallsDescriptor> callsDescriptorCache;
+    private Map<Long, TraceDescriptor> traceCache;
+    private Map<String, Stack<BeforeOperationEvent>> timestampCache;
     private final String REGEX_FOR_METHOD_NAME = "([a-zA-Z0-9_]+) *\\(";
-    private Integer counter = null;
 
     public KiekerHelper(ScannerContext scannerContext, RecordDescriptor recordDescriptor) {
         this.scannerContext = scannerContext;
         this.recordDescriptor = recordDescriptor;
-        methodDescriptorCache = Caffeine.newBuilder().softValues().build();
-        callsDescriptorCache = Caffeine.newBuilder().softValues().build();
-        traceCache = new HashMap<Long, TraceDescriptor>();
-        timestampCache = new HashMap<String, Stack<BeforeOperationEvent>>();
-        counter = 0;
-        //     callsCache = new HashMap<String, CallsDescriptor>();
+        methodDescriptorCache = Caffeine.newBuilder().maximumSize(100000).build();
+        callsDescriptorCache = Caffeine.newBuilder().maximumSize(10000000).build();
+        traceCache = new HashMap<>();
+        timestampCache = new HashMap<>();
     }
 
     void createRecord(KiekerMetadataRecord record) {
@@ -78,11 +74,6 @@ public class KiekerHelper {
     }
 
     void createEvent(AbstractOperationEvent event) {
-        counter++;
-        if (counter == 100000) {
-            scannerContext.getStore().flush();
-            counter = 0;
-        }
         if (event instanceof BeforeOperationEvent || event instanceof AfterOperationEvent) {
             if (event instanceof BeforeOperationEvent) {
                 // push before timestamp to stack
@@ -177,12 +168,14 @@ public class KiekerHelper {
     }
 
     private CallsDescriptor addCall(MethodDescriptor caller, MethodDescriptor callee) {
-        CallsDescriptor callsDescriptor = callsDescriptorCache.get(CallKey.builder().caller(caller).callee(callee).build(), key -> caller.getCallees().stream()
-            .filter(call -> call.getCaller().equals(callee))
-            .findAny()
-            .orElse(scannerContext.getStore().create(caller, CallsDescriptor.class, callee)));
-        Integer weight = callsDescriptor.getWeight();
-        callsDescriptor.setWeight(weight != null ? weight + 1 : 1);
+        CallsDescriptor callsDescriptor = callsDescriptorCache.get(CallsDescriptorKey.builder().caller(caller).callee(callee).build(), key -> {
+            Map<String, Object> params = new HashMap<>();
+            params.put("caller", caller);
+            params.put("callee", callee);
+            return scannerContext.getStore().executeQuery("MATCH (caller:Kieker:Method),(callee:Kieker:Method) WHERE id(caller)=$caller AND id(callee)=$callee MERGE (caller)-[c:CALLS]->(callee) RETURN c", params).getSingleResult().get("c", CallsDescriptor.class);
+        });
+        Long weight = callsDescriptor.getWeight();
+        callsDescriptor.setWeight(weight == null ? 1 : weight + 1);
         return callsDescriptor;
     }
 
@@ -230,7 +223,7 @@ public class KiekerHelper {
     @Builder
     @EqualsAndHashCode
     @ToString
-    private static class CallKey {
+    private static class CallsDescriptorKey {
 
         private MethodDescriptor caller;
 
