@@ -2,18 +2,18 @@ package org.jqassistant.contrib.plugin.kieker.test;
 
 import com.buschmais.jqassistant.core.scanner.api.DefaultScope;
 import com.buschmais.jqassistant.plugin.common.test.AbstractPluginIT;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class TraceIT extends AbstractPluginIT {
 
     @Test
-    @Ignore
+    @Disabled
     public void testTrace() {
         final String TEST_DIRECTORY_PATH = "src/test/resources/";
         File directory = new File(TEST_DIRECTORY_PATH);

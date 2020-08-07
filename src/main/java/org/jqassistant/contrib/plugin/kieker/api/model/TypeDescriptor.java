@@ -4,6 +4,8 @@ import com.buschmais.jqassistant.core.store.api.model.FullQualifiedNameDescripto
 import com.buschmais.jqassistant.plugin.common.api.model.NamedDescriptor;
 import com.buschmais.xo.neo4j.api.annotation.Label;
 import com.buschmais.xo.neo4j.api.annotation.Relation;
+import com.buschmais.xo.neo4j.api.annotation.Relation.Incoming;
+import com.buschmais.xo.neo4j.api.annotation.Relation.Outgoing;
 
 import java.util.List;
 
@@ -16,9 +18,9 @@ public interface TypeDescriptor extends KiekerDescriptor, FullQualifiedNameDescr
     @Relation("DECLARES")
     List<MethodDescriptor> getDeclaredMethods();
 
-    @Relation.Outgoing
+    @Outgoing
     List<TypeDependsOnDescriptor> getDependencies();
 
-    @Relation.Incoming
+    @Incoming
     List<TypeDependsOnDescriptor> getDependents();
 }

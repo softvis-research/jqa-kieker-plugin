@@ -1,14 +1,13 @@
 package org.jqassistant.contrib.plugin.kieker.test;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import com.buschmais.jqassistant.core.scanner.api.DefaultScope;
+import com.buschmais.jqassistant.plugin.common.test.AbstractPluginIT;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
-import org.junit.Test;
-
-import com.buschmais.jqassistant.core.scanner.api.DefaultScope;
-import com.buschmais.jqassistant.plugin.common.test.AbstractPluginIT;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class RecordIT extends AbstractPluginIT {
 
