@@ -13,7 +13,7 @@ public class RecordIT extends AbstractPluginIT {
 
     @Test
     public void testRecord() {
-        final String TEST_DIRECTORY_PATH = "src/test/resources/events";
+        final String TEST_DIRECTORY_PATH = "src/test/resources/bookstore";
         File directory = new File(TEST_DIRECTORY_PATH);
         store.beginTransaction();
         getScanner().scan(directory, TEST_DIRECTORY_PATH, DefaultScope.NONE);
@@ -28,7 +28,7 @@ public class RecordIT extends AbstractPluginIT {
         assertThat(testResultProperties.getColumn("n.hostname").get(0).toString(), equalTo("SE"));
         // fileName is "/kieker-20141008-101258830-UTC-000-Thread-1.dat"
         assertThat(testResultProperties.getColumn("n.fileName").get(0).toString(),
-            equalTo("/events/kieker-20141008-101258830-UTC-000-Thread-1.dat"));
+            equalTo("/bookstore/kieker-20141008-101258830-UTC-000-Thread-1.dat"));
         // numberOfRecords is "1"
         assertThat(testResultProperties.getColumn("n.numberOfRecords").get(0).toString(), equalTo("1"));
         // controllerName is "KIEKER-SINGLETON"

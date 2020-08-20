@@ -13,7 +13,7 @@ public class CallsIT extends AbstractPluginIT {
 
     @Test
     public void testTypeDependencies() {
-        final String TEST_DIRECTORY_PATH = "src/test/resources/calls";
+        final String TEST_DIRECTORY_PATH = "src/test/resources/metrics";
         File directory = new File(TEST_DIRECTORY_PATH);
         store.beginTransaction();
         getScanner().scan(directory, TEST_DIRECTORY_PATH, DefaultScope.NONE);
@@ -24,7 +24,7 @@ public class CallsIT extends AbstractPluginIT {
 
     @Test
     public void testPackageDependencies() {
-        final String TEST_DIRECTORY_PATH = "src/test/resources/calls";
+        final String TEST_DIRECTORY_PATH = "src/test/resources/metrics";
         File directory = new File(TEST_DIRECTORY_PATH);
         store.beginTransaction();
         getScanner().scan(directory, TEST_DIRECTORY_PATH, DefaultScope.NONE);

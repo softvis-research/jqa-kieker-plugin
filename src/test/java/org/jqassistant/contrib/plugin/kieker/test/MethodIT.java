@@ -13,7 +13,7 @@ public class MethodIT extends AbstractPluginIT {
 
     @Test
     public void testMethod() {
-        final String TEST_DIRECTORY_PATH = "src/test/resources/events";
+        final String TEST_DIRECTORY_PATH = "src/test/resources/bookstore";
         File directory = new File(TEST_DIRECTORY_PATH);
         store.beginTransaction();
         getScanner().scan(directory, TEST_DIRECTORY_PATH, DefaultScope.NONE);
