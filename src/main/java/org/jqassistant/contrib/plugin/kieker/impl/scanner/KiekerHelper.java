@@ -3,12 +3,14 @@ package org.jqassistant.contrib.plugin.kieker.impl.scanner;
 import com.buschmais.jqassistant.core.scanner.api.ScannerContext;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.flow.trace.TraceMetadata;
 import kieker.common.record.flow.trace.operation.AbstractOperationEvent;
 import kieker.common.record.flow.trace.operation.AfterOperationEvent;
 import kieker.common.record.flow.trace.operation.BeforeOperationEvent;
 import kieker.common.record.flow.trace.operation.CallOperationEvent;
 import kieker.common.record.misc.KiekerMetadataRecord;
+import kieker.common.record.system.*;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -23,9 +25,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The Kieker helper creates records, traces, and events.
+ * The Kieker helper creates records, traces, events, and measurements.
  *
- * @author Richard Mueller, Dirk Mahler
+ * @author Richard Mueller, Dirk Mahler, Tom Strempel
  */
 public class KiekerHelper {
 
@@ -41,10 +43,10 @@ public class KiekerHelper {
     public KiekerHelper(ScannerContext scannerContext, RecordDescriptor recordDescriptor) {
         this.scannerContext = scannerContext;
         this.recordDescriptor = recordDescriptor;
-        methodDescriptorCache = Caffeine.newBuilder().maximumSize(100000).build();
-        callsDescriptorCache = Caffeine.newBuilder().maximumSize(10000000).build();
-        traceCache = new HashMap<>();
-        timestampCache = new HashMap<>();
+        this.methodDescriptorCache = Caffeine.newBuilder().maximumSize(100000).build();
+        this.callsDescriptorCache = Caffeine.newBuilder().maximumSize(10000000).build();
+        this.traceCache = new HashMap<>();
+        this.timestampCache = new HashMap<>();
     }
 
     void createRecord(KiekerMetadataRecord record) {
@@ -168,6 +170,87 @@ public class KiekerHelper {
             return matchResult.substring(0, matchResult.length() - 1);
         }
         return signature;
+    }
+
+    public void createMeasurement(IMonitoringRecord iMonitoringRecord) {
+        if (iMonitoringRecord instanceof CPUUtilizationRecord) {
+            CPUUtilizationRecord cpuUtilizationRecord = (CPUUtilizationRecord) iMonitoringRecord;
+            CpuUtilizationMeasurementDescriptor cpuMeasurement = scannerContext.getStore()
+                .create(CpuUtilizationMeasurementDescriptor.class);
+            cpuMeasurement.setTimestamp((cpuUtilizationRecord).getTimestamp());
+            cpuMeasurement.setHostname(cpuUtilizationRecord.getHostname());
+            cpuMeasurement.setCpuID(cpuUtilizationRecord.getCpuID());
+            cpuMeasurement.setIdle(cpuUtilizationRecord.getIdle());
+            cpuMeasurement.setIrq(cpuUtilizationRecord.getIrq());
+            cpuMeasurement.setNice(cpuUtilizationRecord.getNice());
+            cpuMeasurement.setSystem(cpuUtilizationRecord.getSystem());
+            cpuMeasurement.setTotalUtilization(cpuUtilizationRecord.getTotalUtilization());
+            cpuMeasurement.setWait(cpuUtilizationRecord.getWait());
+            recordDescriptor.getMeasurements().add(cpuMeasurement);
+
+        } else if (iMonitoringRecord instanceof DiskUsageRecord) {
+            DiskUsageRecord diskUsageRecord = (DiskUsageRecord) iMonitoringRecord;
+            DiskUsageMeasurementDescriptor diskMeasurement = scannerContext.getStore()
+                .create(DiskUsageMeasurementDescriptor.class);
+            diskMeasurement.setTimestamp(diskUsageRecord.getTimestamp());
+            diskMeasurement.setHostname(diskUsageRecord.getHostname());
+            diskMeasurement.setDeviceName(diskUsageRecord.getDeviceName());
+            diskMeasurement.setQueue(diskUsageRecord.getQueue());
+            diskMeasurement.setReadBytesPerSecond(diskUsageRecord.getReadBytesPerSecond());
+            diskMeasurement.setReadsPerSecond(diskUsageRecord.getReadsPerSecond());
+            diskMeasurement.setServiceTime(diskUsageRecord.getServiceTime());
+            diskMeasurement.setWriteBytesPerSecond(diskUsageRecord.getWriteBytesPerSecond());
+            diskMeasurement.setWritesPerSecond(diskUsageRecord.getWritesPerSecond());
+            recordDescriptor.getMeasurements().add(diskMeasurement);
+
+        } else if (iMonitoringRecord instanceof LoadAverageRecord) {
+            LoadAverageRecord loadAverageRecord = (LoadAverageRecord) iMonitoringRecord;
+            LoadAverageMeasurementDescriptor loadMeasurement = scannerContext.getStore()
+                .create(LoadAverageMeasurementDescriptor.class);
+            loadMeasurement.setTimestamp(loadAverageRecord.getTimestamp());
+            loadMeasurement.setHostname(loadAverageRecord.getHostname());
+            loadMeasurement.setLoadAverage15min(loadAverageRecord.getFifteenMinLoadAverage());
+            loadMeasurement.setLoadAverage5min(loadAverageRecord.getFiveMinLoadAverage());
+            loadMeasurement.setLoadAverage1min(loadAverageRecord.getOneMinLoadAverage());
+            recordDescriptor.getMeasurements().add(loadMeasurement);
+
+        } else if (iMonitoringRecord instanceof MemSwapUsageRecord) {
+            MemSwapUsageRecord memSwapUsageRecord = (MemSwapUsageRecord) iMonitoringRecord;
+            MemSwapUsageMeasurementDescriptor memMeasurement = scannerContext.getStore()
+                .create(MemSwapUsageMeasurementDescriptor.class);
+            memMeasurement.setTimestamp(memSwapUsageRecord.getTimestamp());
+            memMeasurement.setHostname(memSwapUsageRecord.getHostname());
+            memMeasurement.setMemFree(memSwapUsageRecord.getMemFree());
+            memMeasurement.setMemTotal(memSwapUsageRecord.getMemTotal());
+            memMeasurement.setMemUsed(memSwapUsageRecord.getMemUsed());
+            memMeasurement.setSwapFree(memSwapUsageRecord.getSwapFree());
+            memMeasurement.setSwapTotal(memSwapUsageRecord.getSwapTotal());
+            memMeasurement.setSwapUsed(memSwapUsageRecord.getSwapUsed());
+            recordDescriptor.getMeasurements().add(memMeasurement);
+
+        } else if (iMonitoringRecord instanceof NetworkUtilizationRecord) {
+            NetworkUtilizationRecord networkUtilizationRecord = (NetworkUtilizationRecord) iMonitoringRecord;
+            NetworkUtilizationMeasurementDescriptor networkMeasurement = scannerContext.getStore()
+                .create(NetworkUtilizationMeasurementDescriptor.class);
+            networkMeasurement.setTimestamp(networkUtilizationRecord.getTimestamp());
+            networkMeasurement.setHostname(networkUtilizationRecord.getHostname());
+            networkMeasurement.setInterfaceName(networkUtilizationRecord.getInterfaceName());
+            networkMeasurement.setRxBytesPerSecond(networkUtilizationRecord.getRxBytesPerSecond());
+            networkMeasurement.setRxDroppedPerSecond(networkUtilizationRecord.getRxDroppedPerSecond());
+            networkMeasurement.setRxErrorsPerSecond(networkUtilizationRecord.getRxErrorsPerSecond());
+            networkMeasurement.setRxFramePerSecond(networkUtilizationRecord.getRxFramePerSecond());
+            networkMeasurement.setRxOverrunsPerSecond(networkUtilizationRecord.getRxOverrunsPerSecond());
+            networkMeasurement.setRxPacketsPerSecond(networkUtilizationRecord.getRxPacketsPerSecond());
+            networkMeasurement.setSpeed(networkUtilizationRecord.getSpeed());
+            networkMeasurement.setTxBytesPerSecond(networkUtilizationRecord.getTxBytesPerSecond());
+            networkMeasurement.setTxCarrierPerSecond(networkUtilizationRecord.getTxCarrierPerSecond());
+            networkMeasurement.setTxCollisionsPerSecond(networkUtilizationRecord.getTxCollisionsPerSecond());
+            networkMeasurement.setTxDroppedPerSecond(networkUtilizationRecord.getTxDroppedPerSecond());
+            networkMeasurement.setTxErrorsPerSecond(networkUtilizationRecord.getTxErrorsPerSecond());
+            networkMeasurement.setTxOverrunsPerSecond(networkUtilizationRecord.getTxOverrunsPerSecond());
+            networkMeasurement.setTxPacketsPerSecond(networkUtilizationRecord.getTxPacketsPerSecond());
+            recordDescriptor.getMeasurements().add(networkMeasurement);
+        }
     }
 
     @Builder

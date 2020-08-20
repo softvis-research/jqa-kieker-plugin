@@ -11,6 +11,12 @@
         <class>org.jqassistant.contrib.plugin.kieker.api.model.CallEventDescriptor</class>
         <class>org.jqassistant.contrib.plugin.kieker.api.model.ExecutionEventDescriptor</class>
         <class>org.jqassistant.contrib.plugin.kieker.api.model.PackageDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.kieker.api.model.MeasurementDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.kieker.api.model.CpuUtilizationMeasurementDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.kieker.api.model.DiskUsageMeasurementDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.kieker.api.model.LoadAverageMeasurementDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.kieker.api.model.MemSwapUsageMeasurementDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.kieker.api.model.NetworkUtilizationMeasurementDescriptor</class>
     </model>
     <scanner>
         <class>org.jqassistant.contrib.plugin.kieker.impl.scanner.KiekerDirectoryScannerPlugin</class>

@@ -17,6 +17,9 @@ public interface RecordDescriptor extends KiekerDescriptor, DirectoryDescriptor 
     @Relation("CONTAINS")
     List<TraceDescriptor> getTraces();
 
+    @Relation("CONTAINS")
+    List<MeasurementDescriptor> getMeasurements();
+
     void setLoggingTimestamp(long timestamp);
 
     long getLoggingTimestamp();
