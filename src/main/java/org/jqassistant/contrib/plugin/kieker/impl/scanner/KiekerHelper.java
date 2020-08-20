@@ -25,7 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The Kieker helper creates records, traces, events, and measurements.
+ * The Kieker helper creates records, traces, calls, and measurements.
  *
  * @author Richard Mueller, Dirk Mahler, Tom Strempel
  */
