@@ -13,7 +13,7 @@ import java.util.List;
 public interface TraceDescriptor extends NamedDescriptor, KiekerDescriptor {
 
     @Relation("CONTAINS")
-    List<EventDescriptor> getEvents();
+    List<MethodDescriptor> getMethods();
 
     void setLoggingTimestamp(long timestamp);
 

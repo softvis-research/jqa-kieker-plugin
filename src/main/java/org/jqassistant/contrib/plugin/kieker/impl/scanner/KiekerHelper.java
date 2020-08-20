@@ -79,17 +79,14 @@ public class KiekerHelper {
             } else {
                 // get type and method of event
                 MethodDescriptor methodDescriptor = getMethodDescriptor(event.getClassSignature(), event.getOperationSignature());
-
-                // set before and after timestamp
-                ExecutionEventDescriptor executionEventDescriptor = scannerContext.getStore().create(ExecutionEventDescriptor.class);
+                // calculate duration from before and after operation event (duration = after - before))
                 BeforeOperationEvent beforeOperationEvent = popFromTimestampStack(methodDescriptor.getSignature());
                 if (beforeOperationEvent != null) {
-                    executionEventDescriptor.setBeforeOrderIndex(beforeOperationEvent.getOrderIndex());
-                    executionEventDescriptor.setBeforeTimestamp(beforeOperationEvent.getTimestamp());
-                    executionEventDescriptor.setAfterOrderIndex(event.getOrderIndex());
-                    executionEventDescriptor.setAfterTimestamp(event.getTimestamp());
-                    executionEventDescriptor.setExecutedMethod(methodDescriptor);
-                    getTraceDescriptor(event).getEvents().add(executionEventDescriptor);
+                    methodDescriptor.setDuration(methodDescriptor.getDuration() + (event.getTimestamp() - beforeOperationEvent.getTimestamp()));
+                    // add method to trace if not already done
+                    if (!getTraceDescriptor(event).getMethods().contains(methodDescriptor)) {
+                        getTraceDescriptor(event).getMethods().add(methodDescriptor);
+                    }
                 } else {
                     LOGGER.warn("BeforeOperationEvent for method " + methodDescriptor.getSignature() + " missing.");
                 }
@@ -101,6 +98,10 @@ public class KiekerHelper {
             MethodDescriptor callee = getMethodDescriptor(callOperationEvent.getCalleeClassSignature(), callOperationEvent.getCalleeOperationSignature());
             // add call
             addCall(caller, callee);
+            // add caller to trace if not already done
+            if (!getTraceDescriptor(event).getMethods().contains(caller)) {
+                getTraceDescriptor(event).getMethods().add(caller);
+            }
         }
     }
 
@@ -143,9 +144,10 @@ public class KiekerHelper {
         return methodDescriptorCache.get(MethodDescriptorKey.builder().type(fqn).signature(signature).build(), methodDescriptorKey -> {
             Map<String, Object> params = new HashMap<>();
             params.put("fqn", fqn);
-            params.put("name", fqn.substring(fqn.lastIndexOf(".") + 1));
+            params.put("typeName", fqn.substring(fqn.lastIndexOf(".") + 1));
             params.put("signature", signature);
-            return scannerContext.getStore().executeQuery("MERGE (t:Kieker:Type{fqn:$fqn}) ON CREATE SET t.name=$name MERGE (t)-[:DECLARES]->(m:Kieker:Method{signature:$signature}) RETURN m", params).getSingleResult().get("m", MethodDescriptor.class);
+            params.put("methodName", getMethodNameFromSignature(signature));
+            return scannerContext.getStore().executeQuery("MERGE (t:Kieker:Type{fqn:$fqn}) ON CREATE SET t.name=$typeName MERGE (t)-[:DECLARES]->(m:Kieker:Method{signature:$signature,name:$methodName}) RETURN m", params).getSingleResult().get("m", MethodDescriptor.class);
         });
     }
 

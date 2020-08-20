@@ -8,8 +8,6 @@
         <class>org.jqassistant.contrib.plugin.kieker.api.model.RecordDescriptor</class>
         <class>org.jqassistant.contrib.plugin.kieker.api.model.CallsDescriptor</class>
         <class>org.jqassistant.contrib.plugin.kieker.api.model.TypeDependsOnDescriptor</class>
-        <class>org.jqassistant.contrib.plugin.kieker.api.model.CallEventDescriptor</class>
-        <class>org.jqassistant.contrib.plugin.kieker.api.model.ExecutionEventDescriptor</class>
         <class>org.jqassistant.contrib.plugin.kieker.api.model.PackageDescriptor</class>
         <class>org.jqassistant.contrib.plugin.kieker.api.model.MeasurementDescriptor</class>
         <class>org.jqassistant.contrib.plugin.kieker.api.model.CpuUtilizationMeasurementDescriptor</class>
