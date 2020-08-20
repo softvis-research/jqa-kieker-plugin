@@ -28,6 +28,10 @@
             <id>matteo-fischer</id>
             <name>Matteo Fischer</name>
         </developer>
+        <developer>
+            <id>tom-strempel</id>
+            <name>Tom Strempel</name>
+        </developer>
     </developers>
 
     <licenses>
