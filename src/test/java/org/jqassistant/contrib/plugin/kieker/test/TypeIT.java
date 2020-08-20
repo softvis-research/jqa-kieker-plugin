@@ -13,7 +13,7 @@ public class TypeIT extends AbstractPluginIT {
 
     @Test
     public void testType() {
-        final String TEST_DIRECTORY_PATH = "src/test/resources/";
+        final String TEST_DIRECTORY_PATH = "src/test/resources/events";
         File directory = new File(TEST_DIRECTORY_PATH);
         store.beginTransaction();
         getScanner().scan(directory, TEST_DIRECTORY_PATH, DefaultScope.NONE);

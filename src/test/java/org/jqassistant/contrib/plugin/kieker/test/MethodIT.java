@@ -2,7 +2,6 @@ package org.jqassistant.contrib.plugin.kieker.test;
 
 import com.buschmais.jqassistant.core.scanner.api.DefaultScope;
 import com.buschmais.jqassistant.plugin.common.test.AbstractPluginIT;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -14,7 +13,7 @@ public class MethodIT extends AbstractPluginIT {
 
     @Test
     public void testMethod() {
-        final String TEST_DIRECTORY_PATH = "src/test/resources/";
+        final String TEST_DIRECTORY_PATH = "src/test/resources/events";
         File directory = new File(TEST_DIRECTORY_PATH);
         store.beginTransaction();
         getScanner().scan(directory, TEST_DIRECTORY_PATH, DefaultScope.NONE);
