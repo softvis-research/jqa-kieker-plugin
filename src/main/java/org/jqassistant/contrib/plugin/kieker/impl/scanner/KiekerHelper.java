@@ -12,11 +12,7 @@ import kieker.common.record.misc.KiekerMetadataRecord;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jqassistant.contrib.plugin.kieker.api.model.CallsDescriptor;
-import org.jqassistant.contrib.plugin.kieker.api.model.ExecutionEventDescriptor;
-import org.jqassistant.contrib.plugin.kieker.api.model.MethodDescriptor;
-import org.jqassistant.contrib.plugin.kieker.api.model.RecordDescriptor;
-import org.jqassistant.contrib.plugin.kieker.api.model.TraceDescriptor;
+import org.jqassistant.contrib.plugin.kieker.api.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +25,7 @@ import java.util.regex.Pattern;
 /**
  * The Kieker helper creates records, traces, and events.
  *
- * @author Richard Mueller
+ * @author Richard Mueller, Dirk Mahler
  */
 public class KiekerHelper {
 
@@ -103,22 +99,6 @@ public class KiekerHelper {
             MethodDescriptor callee = getMethodDescriptor(callOperationEvent.getCalleeClassSignature(), callOperationEvent.getCalleeOperationSignature());
             // add call
             addCall(caller, callee);
-
-//            // create call
-//            addCall(callerMethod, calleeMethod, callerType.getFullQualifiedName(), calleeType.getFullQualifiedName());
-//            // update number of incoming and outgoing calls
-//            if (event.getOrderIndex() == 1) {
-//                callerMethod.setIncomingCalls(callerMethod.getIncomingCalls() + 1);
-//            }
-//            callerMethod.setOutgoingCalls(callerMethod.getOutgoingCalls() + 1);
-//            calleeMethod.setIncomingCalls(calleeMethod.getIncomingCalls() + 1);
-//            // create call event
-//            CallEventDescriptor callEventDescriptor = scannerContext.getStore().create(CallEventDescriptor.class);
-//            callEventDescriptor.setTimestamp(event.getTimestamp());
-//            callEventDescriptor.setOrderIndex(event.getOrderIndex());
-//            callEventDescriptor.setCaller(callerMethod);
-//            callEventDescriptor.setCallee(calleeMethod);
-//            getTraceDescriptor(event).getEvents().add(callEventDescriptor);
         }
     }
 
@@ -189,25 +169,6 @@ public class KiekerHelper {
         }
         return signature;
     }
-
-//    private void addCall(MethodDescriptor callerMethod, MethodDescriptor calleeMethod, String callerTypeFqn, String calleeTypeFqn) {
-//        String callsKey = "";
-//        if (!callerMethod.getSignature().contains("(")) {
-//            // is encrypted
-//            callsKey = String.valueOf((callerTypeFqn + callerMethod.getSignature() + calleeTypeFqn + calleeMethod.getSignature()).hashCode());
-//        }
-//        callsKey = callerTypeFqn + callerMethod.getSignature() + calleeTypeFqn + calleeMethod.getSignature();
-//
-//        if (callsCache.containsKey(callsKey)) {
-//            // increase weight
-//            CallsDescriptor callsDescriptor = callsCache.get(callsKey);
-//            callsDescriptor.setWeight(callsDescriptor.getWeight() + 1);
-//        } else {
-//            CallsDescriptor callsDescriptor = scannerContext.getStore().create(callerMethod, CallsDescriptor.class, calleeMethod);
-//            callsDescriptor.setWeight(1);
-//            callsCache.put(callsKey, callsDescriptor);
-//        }
-//    }
 
     @Builder
     @EqualsAndHashCode
