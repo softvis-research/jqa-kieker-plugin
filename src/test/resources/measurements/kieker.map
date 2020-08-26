@@ -1,0 +1,6 @@
+$0=kieker.common.record.misc.KiekerMetadataRecord
+$1=kieker.common.record.system.CPUUtilizationRecord
+$2=kieker.common.record.system.MemSwapUsageRecord
+$3=kieker.common.record.system.DiskUsageRecord
+$4=kieker.common.record.system.NetworkUtilizationRecord
+$5=kieker.common.record.system.LoadAverageRecord
