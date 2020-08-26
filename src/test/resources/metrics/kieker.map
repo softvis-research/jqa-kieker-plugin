@@ -1,0 +1,16 @@
+$0=1.13
+$1=KIEKER
+$2=DESKTOP-RBHO8OA
+$3=NANOSECONDS
+$4=kieker.common.record.misc.KiekerMetadataRecord
+$5=<no-session-id>
+$6=kieker.common.record.flow.trace.TraceMetadata
+$7=public static void org.kieker.metrics.sample.Main.main(java.lang.String[])
+$8=org.kieker.metrics.sample.Main
+$9=public void org.kieker.metrics.sample.a.A.m1(org.kieker.metrics.sample.b.B)
+$10=org.kieker.metrics.sample.a.A_
+$11=kieker.common.record.flow.trace.operation.object.CallOperationObjectEvent
+$12=public void org.kieker.metrics.sample.a.A.m2(org.kieker.metrics.sample.c.C)
+$13=public void org.kieker.metrics.sample.c.C.n2()
+$14=org.kieker.metrics.sample.c.C
+$15=org.kieker.metrics.sample.c.C_

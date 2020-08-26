@@ -1,52 +1,69 @@
 <jqa:jqassistant-rules xmlns:jqa="http://www.buschmais.com/jqassistant/core/analysis/rules/schema/v1.0">
     <group id="default">
-        <includeConcept refId="duration:Method"/>
-        <includeConcept refId="calls:Method"/>
         <includeConcept refId="dependencies:Type"/>
+        <includeConcept refId="containment:Package"/>
+        <includeConcept refId="dependencies:Package"/>
     </group>
-    <concept id="duration:Method">
-        <description>Calculates the duration of each method based on execution events.
-        </description>
-        <cypher><![CDATA[
-             MATCH
-                (e:Execution)-[:EXECUTES]->(m:Method)
-             WITH
-                m, SUM(e.afterTimestamp - e.beforeTimestamp) AS duration
-             SET
-                m.duration = duration
-             RETURN
-               m, duration
-        ]]></cypher>
-    </concept>
-    <concept id="calls:Method">
-        <description>Creates the call graph, i.e., the CALLS relationships between methods based on call events.
-        </description>
-        <cypher><![CDATA[
-             MATCH
-                (c:Call)-[:CALLED_BY]->(caller:Method)
-             MATCH
-                (c:Call)-[:CALLS]->(callee:Method)
-             MERGE
-               (caller)-[calls:CALLS]->(callee)
-             RETURN
-                caller, callee, calls
-        ]]></cypher>
-    </concept>
     <concept id="dependencies:Type">
-        <requiresConcept refId="calls:Method"/>
-        <description>Creates the dependency graph, i.e., the DEPENDS_ON relationship between types if there are method
-            calls between them.
+        <description>Creates the weighted dependency graph on type level, i.e., the DEPENDS_ON relationship between
+            types if there are
+            method calls between them.
         </description>
         <cypher><![CDATA[
                MATCH
-                 (dependent:Type)-[:DECLARES]->(:Method)-[:CALLS]->(:Method)<-[:DECLARES]-(dependency:Type)
+                    (dependent:Type:Kieker)-[:DECLARES]->(caller:Method:Kieker)-[calls:CALLS]->(callee:Method:Kieker)<-[:DECLARES]-(dependency:Type:Kieker)
                WHERE
-                 dependent<>dependency
+                    dependent<>dependency
+               WITH
+                    dependent, dependency, SUM(calls.weight) as aggregatedMethodCalls
+               MERGE
+                    (dependent)-[depends:DEPENDS_ON]->(dependency)
+               SET
+                    depends.weight = aggregatedMethodCalls
+               RETURN
+                    dependent, dependency, depends
+        ]]></cypher>
+    </concept>
+    <concept id="containment:Package">
+        <description>Creates a package derived from the fully qualified name of a type monitored by Kieker and a
+            CONTAINS relationship to this type.
+        </description>
+        <cypher><![CDATA[
+                MATCH
+                    (type:Type:Kieker)
+                WITH
+                    type, SPLIT(type.fqn,'.') AS fqnList
+                WITH
+                    type, REVERSE(tail(REVERSE(fqnList))) AS packageNames
+                WITH
+                    type, HEAD(REVERSE(packageNames)) as packageName, SUBSTRING(REDUCE(tmp="", p IN packageNames | tmp + "." + p),1) as packageFqn
+                MERGE
+                    (package:Package:Kieker {name:packageName, fqn:packageFqn})
+                MERGE
+                    (package)-[:CONTAINS]->(type)
+                RETURN
+                    package, type
+        ]]></cypher>
+    </concept>
+    <concept id="dependencies:Package">
+        <requiresConcept refId="containment:Package"/>
+        <requiresConcept refId="dependencies:Type"/>
+        <description>Creates the weighted dependency graph on package level, i.e., the DEPENDS_ON relationship between
+            packages if there are DEPENDS_ON relationships between their containing types.
+        </description>
+        <cypher><![CDATA[
+               MATCH
+                    (dependent:Package:Kieker)-[:CONTAINS]->(:Type:Kieker)-[depends:DEPENDS_ON]->(:Type:Kieker)<-[:CONTAINS]-(dependency:Package:Kieker)
+               WHERE
+                    dependent<>dependency
+               WITH
+                    dependent, dependency, SUM(depends.weight) as aggregatedDependencies
                MERGE
                  (dependent)-[depends:DEPENDS_ON]->(dependency)
+               SET
+                    depends.weight = aggregatedDependencies
                RETURN
                  dependent, dependency, depends
         ]]></cypher>
     </concept>
-
 </jqa:jqassistant-rules>
