@@ -1,45 +1,52 @@
 package org.jqassistant.contrib.plugin.kieker.impl.scanner;
 
 import com.buschmais.jqassistant.core.scanner.api.ScannerContext;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.flow.trace.TraceMetadata;
 import kieker.common.record.flow.trace.operation.AbstractOperationEvent;
 import kieker.common.record.flow.trace.operation.AfterOperationEvent;
 import kieker.common.record.flow.trace.operation.BeforeOperationEvent;
 import kieker.common.record.flow.trace.operation.CallOperationEvent;
 import kieker.common.record.misc.KiekerMetadataRecord;
+import kieker.common.record.system.*;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.jqassistant.contrib.plugin.kieker.api.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The Kieker helper creates records, traces, and events.
+ * The Kieker helper creates records, traces, calls, and measurements.
  *
- * @author Richard Mueller
+ * @author Richard Mueller, Dirk Mahler, Tom Strempel
  */
 public class KiekerHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KiekerHelper.class);
-    private ScannerContext scannerContext = null;
-    private RecordDescriptor recordDescriptor = null;
-    private Map<String, TypeDescriptor> typeCache = null;
-    private Map<Long, TraceDescriptor> traceCache = null;
-    private Map<String, Stack<BeforeOperationEvent>> timestampCache = null;
+    private ScannerContext scannerContext;
+    private RecordDescriptor recordDescriptor;
+    private Cache<MethodDescriptorKey, MethodDescriptor> methodDescriptorCache;
+    private Cache<CallsDescriptorKey, CallsDescriptor> callsDescriptorCache;
+    private Map<Long, TraceDescriptor> traceCache;
+    private Map<String, Stack<BeforeOperationEvent>> timestampCache;
     private final String REGEX_FOR_METHOD_NAME = "([a-zA-Z0-9_]+) *\\(";
-
 
     public KiekerHelper(ScannerContext scannerContext, RecordDescriptor recordDescriptor) {
         this.scannerContext = scannerContext;
         this.recordDescriptor = recordDescriptor;
-        typeCache = new HashMap<String, TypeDescriptor>();
-        traceCache = new HashMap<Long, TraceDescriptor>();
-        timestampCache = new HashMap<String, Stack<BeforeOperationEvent>>();
+        this.methodDescriptorCache = Caffeine.newBuilder().maximumSize(100000).build();
+        this.callsDescriptorCache = Caffeine.newBuilder().maximumSize(10000000).build();
+        this.traceCache = new HashMap<>();
+        this.timestampCache = new HashMap<>();
     }
 
     void createRecord(KiekerMetadataRecord record) {
@@ -71,40 +78,30 @@ public class KiekerHelper {
                 pushToEventStack(event.getOperationSignature(), (BeforeOperationEvent) event);
             } else {
                 // get type and method of event
-                TypeDescriptor typeDescriptor = getTypeDescriptor(event.getClassSignature());
-                MethodDescriptor methodDescriptor = getMethodDescriptor(event.getOperationSignature(), typeDescriptor);
-
-                // set before and after timestamp
-                ExecutionEventDescriptor executionEventDescriptor = scannerContext.getStore().create(ExecutionEventDescriptor.class);
+                MethodDescriptor methodDescriptor = getMethodDescriptor(event.getClassSignature(), event.getOperationSignature());
+                // calculate duration from before and after operation event (duration = after - before))
                 BeforeOperationEvent beforeOperationEvent = popFromTimestampStack(methodDescriptor.getSignature());
                 if (beforeOperationEvent != null) {
-                    executionEventDescriptor.setBeforeOrderIndex(beforeOperationEvent.getOrderIndex());
-                    executionEventDescriptor.setBeforeTimestamp(beforeOperationEvent.getTimestamp());
-                    executionEventDescriptor.setAfterOrderIndex(event.getOrderIndex());
-                    executionEventDescriptor.setAfterTimestamp(event.getTimestamp());
-                    executionEventDescriptor.setExecutedMethod(methodDescriptor);
-                    getTraceDescriptor(event).getEvents().add(executionEventDescriptor);
+                    methodDescriptor.setDuration(methodDescriptor.getDuration() + (event.getTimestamp() - beforeOperationEvent.getTimestamp()));
+                    // add method to trace if not already done
+                    if (!getTraceDescriptor(event).getMethods().contains(methodDescriptor)) {
+                        getTraceDescriptor(event).getMethods().add(methodDescriptor);
+                    }
                 } else {
                     LOGGER.warn("BeforeOperationEvent for method " + methodDescriptor.getSignature() + " missing.");
                 }
             }
         } else if (event instanceof CallOperationEvent) {
             // get caller and callee
-            MethodDescriptor callerMethod = getMethodDescriptor(((CallOperationEvent) event).getCallerOperationSignature(), getTypeDescriptor(((CallOperationEvent) event).getCallerClassSignature()));
-            MethodDescriptor calleeMethod = getMethodDescriptor(((CallOperationEvent) event).getCalleeOperationSignature(), getTypeDescriptor(((CallOperationEvent) event).getCalleeClassSignature()));
-            // update number of incoming and outgoing calls
-            if (event.getOrderIndex() == 1) {
-                callerMethod.setIncomingCalls(callerMethod.getIncomingCalls() + 1);
+            CallOperationEvent callOperationEvent = (CallOperationEvent) event;
+            MethodDescriptor caller = getMethodDescriptor(callOperationEvent.getCallerClassSignature(), callOperationEvent.getCallerOperationSignature());
+            MethodDescriptor callee = getMethodDescriptor(callOperationEvent.getCalleeClassSignature(), callOperationEvent.getCalleeOperationSignature());
+            // add call
+            addCall(caller, callee);
+            // add caller to trace if not already done
+            if (!getTraceDescriptor(event).getMethods().contains(caller)) {
+                getTraceDescriptor(event).getMethods().add(caller);
             }
-            callerMethod.setOutgoingCalls(callerMethod.getOutgoingCalls() + 1);
-            calleeMethod.setIncomingCalls(calleeMethod.getIncomingCalls() + 1);
-            // create call event
-            CallEventDescriptor callEventDescriptor = scannerContext.getStore().create(CallEventDescriptor.class);
-            callEventDescriptor.setTimestamp(event.getTimestamp());
-            callEventDescriptor.setOrderIndex(event.getOrderIndex());
-            callEventDescriptor.setCaller(callerMethod);
-            callEventDescriptor.setCallee(calleeMethod);
-            getTraceDescriptor(event).getEvents().add(callEventDescriptor);
         }
     }
 
@@ -131,7 +128,7 @@ public class KiekerHelper {
     }
 
     private TraceDescriptor getTraceDescriptor(AbstractOperationEvent event) {
-        TraceDescriptor traceDescriptor = null;
+        TraceDescriptor traceDescriptor;
         if (traceCache.containsKey(event.getTraceId())) {
             traceDescriptor = traceCache.get(event.getTraceId());
         } else {
@@ -143,41 +140,27 @@ public class KiekerHelper {
         return traceDescriptor;
     }
 
-    private TypeDescriptor getTypeDescriptor(String fqn) {
-        if (typeCache.containsKey(fqn)) {
-            return typeCache.get(fqn);
-        } else {
-            TypeDescriptor typeDescriptor = scannerContext.getStore().create(TypeDescriptor.class);
-            typeDescriptor.setFullQualifiedName(fqn);
-            typeDescriptor.setName(fqn.substring(fqn.lastIndexOf(".") + 1));
-            typeCache.put(fqn, typeDescriptor);
-            return typeDescriptor;
-        }
+    private MethodDescriptor getMethodDescriptor(String fqn, String signature) {
+        return methodDescriptorCache.get(MethodDescriptorKey.builder().type(fqn).signature(signature).build(), methodDescriptorKey -> {
+            Map<String, Object> params = new HashMap<>();
+            params.put("fqn", fqn);
+            params.put("typeName", fqn.substring(fqn.lastIndexOf(".") + 1));
+            params.put("signature", signature);
+            params.put("methodName", getMethodNameFromSignature(signature));
+            return scannerContext.getStore().executeQuery("MERGE (t:Kieker:Type{fqn:$fqn}) ON CREATE SET t.name=$typeName MERGE (t)-[:DECLARES]->(m:Kieker:Method{signature:$signature,name:$methodName}) RETURN m", params).getSingleResult().get("m", MethodDescriptor.class);
+        });
     }
 
-    private MethodDescriptor getMethodDescriptor(String signature, TypeDescriptor parent) {
-        MethodDescriptor methodDescriptor = null;
-        for (Iterator<MethodDescriptor> iterator = parent.getDeclaredMethods().iterator(); iterator.hasNext(); ) {
-            Object member = iterator.next();
-            if (member instanceof MethodDescriptor) {
-                MethodDescriptor existingMethodDescriptor = (MethodDescriptor) member;
-                if (existingMethodDescriptor.getSignature().equals(signature)) {
-                    methodDescriptor = existingMethodDescriptor;
-                }
-            }
-        }
-        if (methodDescriptor != null) {
-            return methodDescriptor;
-        } else {
-            methodDescriptor = scannerContext.getStore().create(MethodDescriptor.class);
-            methodDescriptor.setName(getMethodNameFromSignature(signature));
-            methodDescriptor.setSignature(signature);
-            methodDescriptor.setDuration(0);
-            methodDescriptor.setIncomingCalls(0);
-            methodDescriptor.setOutgoingCalls(0);
-            parent.getDeclaredMethods().add(methodDescriptor);
-            return methodDescriptor;
-        }
+    private CallsDescriptor addCall(MethodDescriptor caller, MethodDescriptor callee) {
+        CallsDescriptor callsDescriptor = callsDescriptorCache.get(CallsDescriptorKey.builder().caller(caller).callee(callee).build(), key -> {
+            Map<String, Object> params = new HashMap<>();
+            params.put("caller", caller);
+            params.put("callee", callee);
+            return scannerContext.getStore().executeQuery("MATCH (caller:Kieker:Method),(callee:Kieker:Method) WHERE id(caller)=$caller AND id(callee)=$callee MERGE (caller)-[c:CALLS]->(callee) RETURN c", params).getSingleResult().get("c", CallsDescriptor.class);
+        });
+        Long weight = callsDescriptor.getWeight();
+        callsDescriptor.setWeight(weight == null ? 1 : weight + 1);
+        return callsDescriptor;
     }
 
     private String getMethodNameFromSignature(String signature) {
@@ -189,5 +172,108 @@ public class KiekerHelper {
             return matchResult.substring(0, matchResult.length() - 1);
         }
         return signature;
+    }
+
+    public void createMeasurement(IMonitoringRecord iMonitoringRecord) {
+        if (iMonitoringRecord instanceof CPUUtilizationRecord) {
+            CPUUtilizationRecord cpuUtilizationRecord = (CPUUtilizationRecord) iMonitoringRecord;
+            CpuUtilizationMeasurementDescriptor cpuMeasurement = scannerContext.getStore()
+                .create(CpuUtilizationMeasurementDescriptor.class);
+            cpuMeasurement.setTimestamp((cpuUtilizationRecord).getTimestamp());
+            cpuMeasurement.setHostname(cpuUtilizationRecord.getHostname());
+            cpuMeasurement.setCpuID(cpuUtilizationRecord.getCpuID());
+            cpuMeasurement.setIdle(cpuUtilizationRecord.getIdle());
+            cpuMeasurement.setIrq(cpuUtilizationRecord.getIrq());
+            cpuMeasurement.setNice(cpuUtilizationRecord.getNice());
+            cpuMeasurement.setSystem(cpuUtilizationRecord.getSystem());
+            cpuMeasurement.setTotalUtilization(cpuUtilizationRecord.getTotalUtilization());
+            cpuMeasurement.setWait(cpuUtilizationRecord.getWait());
+            recordDescriptor.getMeasurements().add(cpuMeasurement);
+
+        } else if (iMonitoringRecord instanceof DiskUsageRecord) {
+            DiskUsageRecord diskUsageRecord = (DiskUsageRecord) iMonitoringRecord;
+            DiskUsageMeasurementDescriptor diskMeasurement = scannerContext.getStore()
+                .create(DiskUsageMeasurementDescriptor.class);
+            diskMeasurement.setTimestamp(diskUsageRecord.getTimestamp());
+            diskMeasurement.setHostname(diskUsageRecord.getHostname());
+            diskMeasurement.setDeviceName(diskUsageRecord.getDeviceName());
+            diskMeasurement.setQueue(diskUsageRecord.getQueue());
+            diskMeasurement.setReadBytesPerSecond(diskUsageRecord.getReadBytesPerSecond());
+            diskMeasurement.setReadsPerSecond(diskUsageRecord.getReadsPerSecond());
+            diskMeasurement.setServiceTime(diskUsageRecord.getServiceTime());
+            diskMeasurement.setWriteBytesPerSecond(diskUsageRecord.getWriteBytesPerSecond());
+            diskMeasurement.setWritesPerSecond(diskUsageRecord.getWritesPerSecond());
+            recordDescriptor.getMeasurements().add(diskMeasurement);
+
+        } else if (iMonitoringRecord instanceof LoadAverageRecord) {
+            LoadAverageRecord loadAverageRecord = (LoadAverageRecord) iMonitoringRecord;
+            LoadAverageMeasurementDescriptor loadMeasurement = scannerContext.getStore()
+                .create(LoadAverageMeasurementDescriptor.class);
+            loadMeasurement.setTimestamp(loadAverageRecord.getTimestamp());
+            loadMeasurement.setHostname(loadAverageRecord.getHostname());
+            loadMeasurement.setLoadAverage15min(loadAverageRecord.getFifteenMinLoadAverage());
+            loadMeasurement.setLoadAverage5min(loadAverageRecord.getFiveMinLoadAverage());
+            loadMeasurement.setLoadAverage1min(loadAverageRecord.getOneMinLoadAverage());
+            recordDescriptor.getMeasurements().add(loadMeasurement);
+
+        } else if (iMonitoringRecord instanceof MemSwapUsageRecord) {
+            MemSwapUsageRecord memSwapUsageRecord = (MemSwapUsageRecord) iMonitoringRecord;
+            MemSwapUsageMeasurementDescriptor memMeasurement = scannerContext.getStore()
+                .create(MemSwapUsageMeasurementDescriptor.class);
+            memMeasurement.setTimestamp(memSwapUsageRecord.getTimestamp());
+            memMeasurement.setHostname(memSwapUsageRecord.getHostname());
+            memMeasurement.setMemFree(memSwapUsageRecord.getMemFree());
+            memMeasurement.setMemTotal(memSwapUsageRecord.getMemTotal());
+            memMeasurement.setMemUsed(memSwapUsageRecord.getMemUsed());
+            memMeasurement.setSwapFree(memSwapUsageRecord.getSwapFree());
+            memMeasurement.setSwapTotal(memSwapUsageRecord.getSwapTotal());
+            memMeasurement.setSwapUsed(memSwapUsageRecord.getSwapUsed());
+            recordDescriptor.getMeasurements().add(memMeasurement);
+
+        } else if (iMonitoringRecord instanceof NetworkUtilizationRecord) {
+            NetworkUtilizationRecord networkUtilizationRecord = (NetworkUtilizationRecord) iMonitoringRecord;
+            NetworkUtilizationMeasurementDescriptor networkMeasurement = scannerContext.getStore()
+                .create(NetworkUtilizationMeasurementDescriptor.class);
+            networkMeasurement.setTimestamp(networkUtilizationRecord.getTimestamp());
+            networkMeasurement.setHostname(networkUtilizationRecord.getHostname());
+            networkMeasurement.setInterfaceName(networkUtilizationRecord.getInterfaceName());
+            networkMeasurement.setRxBytesPerSecond(networkUtilizationRecord.getRxBytesPerSecond());
+            networkMeasurement.setRxDroppedPerSecond(networkUtilizationRecord.getRxDroppedPerSecond());
+            networkMeasurement.setRxErrorsPerSecond(networkUtilizationRecord.getRxErrorsPerSecond());
+            networkMeasurement.setRxFramePerSecond(networkUtilizationRecord.getRxFramePerSecond());
+            networkMeasurement.setRxOverrunsPerSecond(networkUtilizationRecord.getRxOverrunsPerSecond());
+            networkMeasurement.setRxPacketsPerSecond(networkUtilizationRecord.getRxPacketsPerSecond());
+            networkMeasurement.setSpeed(networkUtilizationRecord.getSpeed());
+            networkMeasurement.setTxBytesPerSecond(networkUtilizationRecord.getTxBytesPerSecond());
+            networkMeasurement.setTxCarrierPerSecond(networkUtilizationRecord.getTxCarrierPerSecond());
+            networkMeasurement.setTxCollisionsPerSecond(networkUtilizationRecord.getTxCollisionsPerSecond());
+            networkMeasurement.setTxDroppedPerSecond(networkUtilizationRecord.getTxDroppedPerSecond());
+            networkMeasurement.setTxErrorsPerSecond(networkUtilizationRecord.getTxErrorsPerSecond());
+            networkMeasurement.setTxOverrunsPerSecond(networkUtilizationRecord.getTxOverrunsPerSecond());
+            networkMeasurement.setTxPacketsPerSecond(networkUtilizationRecord.getTxPacketsPerSecond());
+            recordDescriptor.getMeasurements().add(networkMeasurement);
+        }
+    }
+
+    @Builder
+    @EqualsAndHashCode
+    @ToString
+    private static class MethodDescriptorKey {
+
+        private String type;
+
+        private String signature;
+
+    }
+
+    @Builder
+    @EqualsAndHashCode
+    @ToString
+    private static class CallsDescriptorKey {
+
+        private MethodDescriptor caller;
+
+        private MethodDescriptor callee;
+
     }
 }

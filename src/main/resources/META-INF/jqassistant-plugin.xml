@@ -8,11 +8,16 @@
         <class>org.jqassistant.contrib.plugin.kieker.api.model.RecordDescriptor</class>
         <class>org.jqassistant.contrib.plugin.kieker.api.model.CallsDescriptor</class>
         <class>org.jqassistant.contrib.plugin.kieker.api.model.TypeDependsOnDescriptor</class>
-        <class>org.jqassistant.contrib.plugin.kieker.api.model.CallEventDescriptor</class>
-        <class>org.jqassistant.contrib.plugin.kieker.api.model.ExecutionEventDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.kieker.api.model.PackageDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.kieker.api.model.MeasurementDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.kieker.api.model.CpuUtilizationMeasurementDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.kieker.api.model.DiskUsageMeasurementDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.kieker.api.model.LoadAverageMeasurementDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.kieker.api.model.MemSwapUsageMeasurementDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.kieker.api.model.NetworkUtilizationMeasurementDescriptor</class>
     </model>
     <scanner>
-        <class>org.jqassistant.contrib.plugin.kieker.impl.scanner.KiekerFileScannerPlugin</class>
+        <class>org.jqassistant.contrib.plugin.kieker.impl.scanner.KiekerDirectoryScannerPlugin</class>
     </scanner>
     <rules>
         <resource>kieker.xml</resource>

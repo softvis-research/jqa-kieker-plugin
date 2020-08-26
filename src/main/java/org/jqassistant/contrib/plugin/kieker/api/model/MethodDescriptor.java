@@ -1,10 +1,12 @@
 package org.jqassistant.contrib.plugin.kieker.api.model;
 
 import com.buschmais.jqassistant.plugin.common.api.model.NamedDescriptor;
-import com.buschmais.xo.neo4j.api.annotation.Indexed;
 import com.buschmais.xo.neo4j.api.annotation.Label;
-import com.buschmais.xo.neo4j.api.annotation.Property;
 import com.buschmais.xo.neo4j.api.annotation.Relation;
+import com.buschmais.xo.neo4j.api.annotation.Relation.Incoming;
+import com.buschmais.xo.neo4j.api.annotation.Relation.Outgoing;
+
+import java.util.List;
 
 /**
  * Defines the node for a Method.
@@ -12,14 +14,18 @@ import com.buschmais.xo.neo4j.api.annotation.Relation;
 @Label("Method")
 public interface MethodDescriptor extends KiekerDescriptor, NamedDescriptor {
 
-    @Relation.Outgoing
-    CallsDescriptor getCallee();
+    @Relation
+    @Outgoing
+    List<CallsDescriptor> getCallees();
 
-    @Relation.Incoming
-    CallsDescriptor getCaller();
+    @Relation
+    @Incoming
+    List<CallsDescriptor> getCallers();
 
-    @Property("signature")
-    @Indexed
+    @Incoming
+    @Relation("DECLARES")
+    TypeDescriptor getDeclaringType();
+
     void setSignature(String signature);
 
     String getSignature();

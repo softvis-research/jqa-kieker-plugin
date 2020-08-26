@@ -2,20 +2,18 @@ package org.jqassistant.contrib.plugin.kieker.test;
 
 import com.buschmais.jqassistant.core.scanner.api.DefaultScope;
 import com.buschmais.jqassistant.plugin.common.test.AbstractPluginIT;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MethodIT extends AbstractPluginIT {
 
     @Test
-    @Ignore
     public void testMethod() {
-        final String TEST_DIRECTORY_PATH = "src/test/resources/";
+        final String TEST_DIRECTORY_PATH = "src/test/resources/bookstore";
         File directory = new File(TEST_DIRECTORY_PATH);
         store.beginTransaction();
         getScanner().scan(directory, TEST_DIRECTORY_PATH, DefaultScope.NONE);
