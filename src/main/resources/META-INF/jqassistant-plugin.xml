@@ -3,7 +3,6 @@
     <description>Provides a scanner for Kieker files.</description>
     <model>
         <class>org.jqassistant.contrib.plugin.kieker.api.model.MethodDescriptor</class>
-        <class>org.jqassistant.contrib.plugin.kieker.api.model.TraceDescriptor</class>
         <class>org.jqassistant.contrib.plugin.kieker.api.model.TypeDescriptor</class>
         <class>org.jqassistant.contrib.plugin.kieker.api.model.RecordDescriptor</class>
         <class>org.jqassistant.contrib.plugin.kieker.api.model.CallsDescriptor</class>

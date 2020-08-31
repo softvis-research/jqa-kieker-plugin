@@ -15,7 +15,7 @@ import java.util.List;
 public interface RecordDescriptor extends KiekerDescriptor, DirectoryDescriptor {
 
     @Relation("CONTAINS")
-    List<TraceDescriptor> getTraces();
+    List<MethodDescriptor> getMethods();
 
     @Relation("CONTAINS")
     List<MeasurementDescriptor> getMeasurements();
