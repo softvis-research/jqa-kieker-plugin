@@ -50,12 +50,16 @@ public class KiekerDirectoryScannerPlugin extends AbstractDirectoryScannerPlugin
         final RecordDescriptor recordDescriptor = scannerContext.getStore().addDescriptorType(directoryDescriptor, RecordDescriptor.class);
 
         // Set record receiver that maps read records to corresponding descriptors
-        KiekerRecordReceiver kiekerRecordReceiver = new KiekerRecordReceiver(new KiekerHelper(scannerContext, recordDescriptor));
+        KiekerHelper kiekerHelper = new KiekerHelper(scannerContext, recordDescriptor);
+        KiekerRecordReceiver kiekerRecordReceiver = new KiekerRecordReceiver(kiekerHelper);
 
         // Set filesystem directory reader (reads *.map, *.dat, *.bin, *.xz files in a directory)
         // Todo use another reader
         FSDirectoryReader fsDirectoryReader = new FSDirectoryReader(container, kiekerRecordReceiver, true);
         fsDirectoryReader.run();
+
+        // add all methods to record
+        kiekerHelper.addMethodsToRecord();
 
         return recordDescriptor;
     }
@@ -70,7 +74,6 @@ public class KiekerDirectoryScannerPlugin extends AbstractDirectoryScannerPlugin
      */
     @Override
     protected void enterContainer(File container, RecordDescriptor containerDescriptor, ScannerContext scannerContext) throws IOException {
-
     }
 
     /**
@@ -82,6 +85,5 @@ public class KiekerDirectoryScannerPlugin extends AbstractDirectoryScannerPlugin
      */
     @Override
     protected void leaveContainer(File container, RecordDescriptor containerDescriptor, ScannerContext scannerContext) throws IOException {
-
     }
 }

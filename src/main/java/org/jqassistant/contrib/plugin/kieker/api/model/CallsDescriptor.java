@@ -11,5 +11,4 @@ public interface CallsDescriptor extends Descriptor, WeightDescriptor {
 
     @Relation.Incoming
     MethodDescriptor getCaller();
-
 }

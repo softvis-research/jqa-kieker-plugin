@@ -29,8 +29,6 @@ public class MethodIT extends AbstractPluginIT {
         // kieker.examples.monitoring.aspectj.Bookstore.searchBook()"
         assertThat(testResultProperties.getColumn("m.signature").get(0).toString(),
             equalTo("public void kieker.examples.monitoring.aspectj.Bookstore.searchBook()"));
-        // two events have this function -> 1 After- plus 1 BeforeOperationEvent
-        assertThat(testResultProperties.getColumn("m.signature").size(), equalTo(1));
         store.commitTransaction();
     }
 }

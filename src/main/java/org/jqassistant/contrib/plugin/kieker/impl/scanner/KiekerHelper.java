@@ -4,7 +4,6 @@ import com.buschmais.jqassistant.core.scanner.api.ScannerContext;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import kieker.common.record.IMonitoringRecord;
-import kieker.common.record.flow.trace.TraceMetadata;
 import kieker.common.record.flow.trace.operation.AbstractOperationEvent;
 import kieker.common.record.flow.trace.operation.AfterOperationEvent;
 import kieker.common.record.flow.trace.operation.BeforeOperationEvent;
@@ -36,7 +35,6 @@ public class KiekerHelper {
     private RecordDescriptor recordDescriptor;
     private Cache<MethodDescriptorKey, MethodDescriptor> methodDescriptorCache;
     private Cache<CallsDescriptorKey, CallsDescriptor> callsDescriptorCache;
-    private Map<Long, TraceDescriptor> traceCache;
     private Map<String, Stack<BeforeOperationEvent>> timestampCache;
     private final String REGEX_FOR_METHOD_NAME = "([a-zA-Z0-9_]+) *\\(";
 
@@ -45,7 +43,6 @@ public class KiekerHelper {
         this.recordDescriptor = recordDescriptor;
         this.methodDescriptorCache = Caffeine.newBuilder().maximumSize(100000).build();
         this.callsDescriptorCache = Caffeine.newBuilder().maximumSize(10000000).build();
-        this.traceCache = new HashMap<>();
         this.timestampCache = new HashMap<>();
     }
 
@@ -60,17 +57,6 @@ public class KiekerHelper {
         recordDescriptor.setNumberOfRecords(record.getNumberOfRecords());
     }
 
-    void createTrace(TraceMetadata trace) {
-        TraceDescriptor traceDescriptor = scannerContext.getStore().create(TraceDescriptor.class);
-        traceDescriptor.setLoggingTimestamp(trace.getLoggingTimestamp());
-        traceDescriptor.setTraceId(trace.getTraceId());
-        traceDescriptor.setThreadId(trace.getThreadId());
-        traceDescriptor.setSessionId(trace.getSessionId());
-        traceDescriptor.setHostname(trace.getHostname());
-        recordDescriptor.getTraces().add(traceDescriptor);
-        traceCache.put(trace.getTraceId(), traceDescriptor);
-    }
-
     void createEvent(AbstractOperationEvent event) {
         if (event instanceof BeforeOperationEvent || event instanceof AfterOperationEvent) {
             if (event instanceof BeforeOperationEvent) {
@@ -83,10 +69,6 @@ public class KiekerHelper {
                 BeforeOperationEvent beforeOperationEvent = popFromTimestampStack(methodDescriptor.getSignature());
                 if (beforeOperationEvent != null) {
                     methodDescriptor.setDuration(methodDescriptor.getDuration() + (event.getTimestamp() - beforeOperationEvent.getTimestamp()));
-                    // add method to trace if not already done
-                    if (!getTraceDescriptor(event).getMethods().contains(methodDescriptor)) {
-                        getTraceDescriptor(event).getMethods().add(methodDescriptor);
-                    }
                 } else {
                     LOGGER.warn("BeforeOperationEvent for method " + methodDescriptor.getSignature() + " missing.");
                 }
@@ -96,12 +78,14 @@ public class KiekerHelper {
             CallOperationEvent callOperationEvent = (CallOperationEvent) event;
             MethodDescriptor caller = getMethodDescriptor(callOperationEvent.getCallerClassSignature(), callOperationEvent.getCallerOperationSignature());
             MethodDescriptor callee = getMethodDescriptor(callOperationEvent.getCalleeClassSignature(), callOperationEvent.getCalleeOperationSignature());
+            // update number of incoming and outgoing calls
+            if (callOperationEvent.getOrderIndex() == 1) {
+                caller.setIncomingCalls(caller.getIncomingCalls() + 1);
+            }
+            caller.setOutgoingCalls(caller.getOutgoingCalls() + 1);
+            callee.setIncomingCalls(callee.getIncomingCalls() + 1);
             // add call
             addCall(caller, callee);
-            // add caller to trace if not already done
-            if (!getTraceDescriptor(event).getMethods().contains(caller)) {
-                getTraceDescriptor(event).getMethods().add(caller);
-            }
         }
     }
 
@@ -127,27 +111,19 @@ public class KiekerHelper {
         }
     }
 
-    private TraceDescriptor getTraceDescriptor(AbstractOperationEvent event) {
-        TraceDescriptor traceDescriptor;
-        if (traceCache.containsKey(event.getTraceId())) {
-            traceDescriptor = traceCache.get(event.getTraceId());
-        } else {
-            traceDescriptor = scannerContext.getStore().create(TraceDescriptor.class);
-            traceDescriptor.setTraceId(event.getTraceId());
-            recordDescriptor.getTraces().add(traceDescriptor);
-            traceCache.put(event.getTraceId(), traceDescriptor);
-        }
-        return traceDescriptor;
-    }
-
     private MethodDescriptor getMethodDescriptor(String fqn, String signature) {
         return methodDescriptorCache.get(MethodDescriptorKey.builder().type(fqn).signature(signature).build(), methodDescriptorKey -> {
             Map<String, Object> params = new HashMap<>();
             params.put("fqn", fqn);
             params.put("typeName", fqn.substring(fqn.lastIndexOf(".") + 1));
             params.put("signature", signature);
-            params.put("methodName", getMethodNameFromSignature(signature));
-            return scannerContext.getStore().executeQuery("MERGE (t:Kieker:Type{fqn:$fqn}) ON CREATE SET t.name=$typeName MERGE (t)-[:DECLARES]->(m:Kieker:Method{signature:$signature,name:$methodName}) RETURN m", params).getSingleResult().get("m", MethodDescriptor.class);
+            // exclude encoded signature as no method name can be created
+            if (signature.endsWith(")")) {
+                params.put("methodName", getMethodNameFromSignature(signature));
+                return scannerContext.getStore().executeQuery("MERGE (t:Kieker:Type{fqn:$fqn}) ON CREATE SET t.name=$typeName MERGE (t)-[:DECLARES]->(m:Kieker:Method{signature:$signature,name:$methodName}) RETURN m", params).getSingleResult().get("m", MethodDescriptor.class);
+            } else {
+                return scannerContext.getStore().executeQuery("MERGE (t:Kieker:Type{fqn:$fqn}) ON CREATE SET t.name=$typeName MERGE (t)-[:DECLARES]->(m:Kieker:Method{signature:$signature}) RETURN m", params).getSingleResult().get("m", MethodDescriptor.class);
+            }
         });
     }
 
@@ -275,5 +251,9 @@ public class KiekerHelper {
 
         private MethodDescriptor callee;
 
+    }
+
+    public void addMethodsToRecord() {
+        recordDescriptor.getMethods().addAll(methodDescriptorCache.asMap().values());
     }
 }

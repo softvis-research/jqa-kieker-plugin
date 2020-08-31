@@ -2,7 +2,6 @@ package org.jqassistant.contrib.plugin.kieker.impl.scanner;
 
 import kieker.analysis.plugin.reader.util.IMonitoringRecordReceiver;
 import kieker.common.record.IMonitoringRecord;
-import kieker.common.record.flow.trace.TraceMetadata;
 import kieker.common.record.flow.trace.operation.AbstractOperationEvent;
 import kieker.common.record.misc.KiekerMetadataRecord;
 import kieker.common.record.system.*;
@@ -34,8 +33,6 @@ public class KiekerRecordReceiver implements IMonitoringRecordReceiver {
     public boolean newMonitoringRecord(IMonitoringRecord iMonitoringRecord) {
         if (iMonitoringRecord instanceof KiekerMetadataRecord) {
             kiekerHelper.createRecord((KiekerMetadataRecord) iMonitoringRecord);
-        } else if (iMonitoringRecord instanceof TraceMetadata) {
-            kiekerHelper.createTrace((TraceMetadata) iMonitoringRecord);
         } else if (iMonitoringRecord instanceof AbstractOperationEvent) {
             kiekerHelper.createEvent((AbstractOperationEvent) iMonitoringRecord);
         } else if (iMonitoringRecord instanceof CPUUtilizationRecord || iMonitoringRecord instanceof DiskUsageRecord ||
