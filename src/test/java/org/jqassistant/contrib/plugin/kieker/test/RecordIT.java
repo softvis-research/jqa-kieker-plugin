@@ -17,9 +17,6 @@ public class RecordIT extends AbstractPluginIT {
         File directory = new File(TEST_DIRECTORY_PATH);
         store.beginTransaction();
         getScanner().scan(directory, TEST_DIRECTORY_PATH, DefaultScope.NONE);
-        TestResult testResult = query("MATCH (:Record)-[:CONTAINS]->(t:Trace) RETURN t");
-        // one record with two traces
-        assertThat(testResult.getColumn("t").size(), equalTo(2));
 
         // test property values
         TestResult testResultProperties = query(
