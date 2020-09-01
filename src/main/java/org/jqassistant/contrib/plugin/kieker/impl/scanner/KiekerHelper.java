@@ -78,12 +78,7 @@ public class KiekerHelper {
             CallOperationEvent callOperationEvent = (CallOperationEvent) event;
             MethodDescriptor caller = getMethodDescriptor(callOperationEvent.getCallerClassSignature(), callOperationEvent.getCallerOperationSignature());
             MethodDescriptor callee = getMethodDescriptor(callOperationEvent.getCalleeClassSignature(), callOperationEvent.getCalleeOperationSignature());
-            // update number of incoming and outgoing calls
-            if (callOperationEvent.getOrderIndex() == 1) {
-                caller.setIncomingCalls(caller.getIncomingCalls() + 1);
-            }
-            caller.setOutgoingCalls(caller.getOutgoingCalls() + 1);
-            callee.setIncomingCalls(callee.getIncomingCalls() + 1);
+
             // add call
             addCall(caller, callee);
         }

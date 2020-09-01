@@ -33,12 +33,4 @@ public interface MethodDescriptor extends KiekerDescriptor, NamedDescriptor {
     void setDuration(long duration);
 
     long getDuration();
-
-    void setIncomingCalls(int incomingCalls);
-
-    int getIncomingCalls();
-
-    void setOutgoingCalls(int outgoingCalls);
-
-    int getOutgoingCalls();
 }
