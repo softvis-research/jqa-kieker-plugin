@@ -29,4 +29,4 @@ jqassistant.sh server
 * Richard Müller and Tom Strempel: [Graph-Based Performance Analysis at System- and Application-Level](https://www.researchgate.net/publication/344609680_Graph-Based_Performance_Analysis_at_System-_and_Application-Level), 11th Symposium on Software Performance, Lepzig, Germany, 2020.
 * Richard Müller and Matteo Fischer: [Graph-Based Analysis and Visualization of Software Traces](https://www.researchgate.net/publication/344608183_Graph-Based_Analysis_and_Visualization_of_Software_Traces), 10th Symposium on Software Performance, Würzburg, Germany, 2019.
 
-You can find a complete list of publications on [our website](http://home.uni-leipzig.de/svis/Publications/).
+You can find a complete list of publications on [our website](https://home.uni-leipzig.de/svis/publications.html).
